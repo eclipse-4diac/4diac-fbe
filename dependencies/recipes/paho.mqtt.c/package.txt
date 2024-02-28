@@ -1,0 +1,1 @@
+eclipse/paho.mqtt.c@v1.3.6 -H sha256:ecbc2c2000c6d8dcf1a76325312c61ed29db0b010acbd40cb92fcd4c014cd017 -X build.cmake

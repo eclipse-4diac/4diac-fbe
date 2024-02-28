@@ -1,0 +1,88 @@
+// ********************************************************************************
+//  Copyright (c) 2018, 2024 OFFIS e.V.
+// 
+//  This program and the accompanying materials are made available under the
+//  terms of the Eclipse Public License 2.0 which is available at
+//  http://www.eclipse.org/legal/epl-2.0.
+// 
+//  SPDX-License-Identifier: EPL-2.0
+//  
+//  Contributors:
+//     Jörg Walter - initial implementation
+//  *******************************************************************************/
+// 
+
+include=../inc/default.txt
+ARCH=arm-linux-musleabihf
+
+CMAKE_BUILD_TYPE=Debug
+FORTE_LOGLEVEL=LOGDEBUG
+###FORTE_TESTS=ON
+###FORTE_SYSTEM_TESTS=ON
+
+FORTE_TRACE_EVENTS=ON
+FORTE_ENABLE_FMU=OFF
+FORTE_RTTI_AND_EXCEPTIONS:BOOL=ON
+
+###DEPS=openpowerlink
+DEPS=libmodbus
+DEPS=open62541
+DEPS=paho.mqtt.c
+DEPS=tinyxml
+
+// address sanitizer doesn't work with static linking
+TOOLCHAIN_EXTRA_C_FLAGS=-fno-sanitize=address -fno-lto
+TOOLCHAIN_EXTRA_LINKER_FLAGS=-fno-sanitize=address -fno-lto
+
+COM=ETH
+COM=FBDK
+COM=HTTP
+COM=LOCAL
+COM=MODBUS
+COM=OPC_UA
+COM=PAHOMQTT
+COM=RAW
+COM=SER
+COM=TSN
+
+FORTE_COM_OPC_UA_ENCRYPTION=ON
+###FORTE_COM_OPC_UA_MULTICAST=ON
+
+IO=EMBRICK
+#IO_PROCESS=SysFs
+
+###MODULE=Arrowhead
+MODULE=CONVERT
+MODULE=IEC61131
+###MODULE=POWERLINK
+MODULE=RECONFIGURATION
+MODULE=RT_Events
+MODULE=UTILS
+
+// disabled due to missing external library support
+//   - only on win32, code uses nonstandard VC++ idioms, needs opc library
+COM=-OPC
+//   - needs https://basex.org/
+COM=-XqueryClient
+//   - needs full ROS install plus manual tweaking plus dynamic linkng
+//     plus ROS1 is deprecated by now
+MODULE=-ROS
+//   - needs https://github.com/Beckhoff/ADS/tree/master/AdsLib
+MODULE=-ADS
+//   - needs external library support for the Bosch Rexroth API
+MODULE=-MLPI
+//   - needs WAGO support library
+MODULE=-WagoKbus
+
+// disabled due to being IO_PROCESS modules
+MODULE=-CONMELEON_C1
+MODULE=-Odroid
+MODULE=-PiFace
+// FIXME: this doesn't even typedef CProcessInterface
+MODULE=-Raspberry_SPS
+#MODULE=-SysFs
+MODULE=-I2C_Dev
+MODULE=-uMIC
+
+// no local additions
+FORTE_EXTERNAL_MODULES_DIRECTORY=/nonexistant

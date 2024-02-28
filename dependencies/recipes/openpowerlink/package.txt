@@ -1,0 +1,1 @@
+https://downloads.sourceforge.net/project/openpowerlink/openPOWERLINK/V1.8.5/openPOWERLINK-V1.08.5.zip -H sha256:20d3161121a2085632c9bc3e00bc099798a87f76d093cb716fcc0406f44f6345 -X build.cmake

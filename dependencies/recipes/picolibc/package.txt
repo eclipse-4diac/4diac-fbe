@@ -1,0 +1,1 @@
+https://github.com/picolibc/picolibc/releases/download/1.5.1/picolibc-1.5.1.tar.xz -X build.cmake -H sha256:06b34f34af4cef1be16e7d2e6de9f0c3aa9980dd7fd86c8b1b78331efbfa9db6

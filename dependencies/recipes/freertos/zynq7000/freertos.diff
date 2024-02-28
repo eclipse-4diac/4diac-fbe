@@ -1,0 +1,203 @@
+#********************************************************************************
+# Copyright (c) 2018, 2024 OFFIS e.V.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License 2.0 which is available at
+# http://www.eclipse.org/legal/epl-2.0.
+#
+# SPDX-License-Identifier: EPL-2.0
+# 
+# Contributors:
+#    Jörg Walter - initial implementation
+# *******************************************************************************/
+#
+
+diff --git a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/FreeRTOSConfig.h b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/FreeRTOSConfig.h
+index fcf6ce6e1..e1bcce2a7 100644
+--- a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/FreeRTOSConfig.h
++++ b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/FreeRTOSConfig.h
+@@ -92,6 +92,11 @@
+ #define configUSE_COUNTING_SEMAPHORES			1
+ #define configUSE_QUEUE_SETS					1
+ #define configSUPPORT_STATIC_ALLOCATION			1
++#define configTASK_NOTIFICATION_ARRAY_ENTRIES   4
++#define configUSE_NEWLIB_REENTRANT              0 // picolibc uses TLS instead of reent.h
++#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 1 // used for __thread keyword support
++#undef configMINIMAL_STACK_SIZE
++#define configMINIMAL_STACK_SIZE 2500
+ 
+ /* Include the query-heap CLI command to query the free heap space. */
+ #define configINCLUDE_QUERY_HEAP_COMMAND		1
+diff --git a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/Full_Demo/serial.c b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/Full_Demo/serial.c
+index bd451b9a0..b2942a849 100644
+--- a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/Full_Demo/serial.c
++++ b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/Full_Demo/serial.c
+@@ -88,7 +88,7 @@ void prvUART_Handler( void *pvNotUsed );
+ /*
+  * See the serial2.h header file.
+  */
+-xComPortHandle xSerialPortInitMinimal( uint32_t ulWantedBaud, UBaseType_t uxQueueLength )
++xComPortHandle xSerialPortInitMinimal( unsigned long ulWantedBaud, unsigned portBASE_TYPE uxQueueLength )
+ {
+ BaseType_t xStatus;
+ XUartPs_Config *pxConfig;
+diff --git a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwIP_Demo/lwIP_port/include/arch/cc.h b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwIP_Demo/lwIP_port/include/arch/cc.h
+index 8c64b5d43..a104f467d 100644
+--- a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwIP_Demo/lwIP_port/include/arch/cc.h
++++ b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwIP_Demo/lwIP_port/include/arch/cc.h
+@@ -34,6 +34,7 @@
+ 
+ #if 1
+ /* Include some files for defining library routines */
++#include "xil_printf.h"
+ #include <stdio.h> /* printf, fflush, FILE */
+ #include <stdlib.h> /* abort */
+ #else
+@@ -90,14 +91,14 @@ typedef u32_t sys_prot_t;
+ #define PACK_STRUCT_USE_INCLUDES
+ 
+ /* Plaform specific diagnostic output */
+-#define LWIP_PLATFORM_DIAG(x)   do { printf x; } while(0)
++#define LWIP_PLATFORM_DIAG(x)   do { xil_printf x; } while(0)
+ 
+-#define LWIP_PLATFORM_ASSERT(x) do { printf("Assertion \"%s\" failed at line %d in %s\n", \
+-                                     x, __LINE__, __FILE__); fflush(NULL); abort(); } while(0)
++#define LWIP_PLATFORM_ASSERT(x) do { xil_printf("Assertion \"%s\" failed at line %d in %s\n", \
++                                     x, __LINE__, __FILE__); abort(); } while(0)
+ 
+ #define LWIP_ERROR(message, expression, handler) do { if (!(expression)) { \
+-  printf("Assertion \"%s\" failed at line %d in %s\n", message, __LINE__, __FILE__); \
+-  fflush(NULL);handler;} } while(0)
++  xil_printf("Assertion \"%s\" failed at line %d in %s\n", message, __LINE__, __FILE__); \
++  handler;} } while(0)
+ 
+ /* C runtime functions redefined */
+ #define snprintf _snprintf
+diff --git a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwIP_Demo/lwIP_port/netif/xadapter.c b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwIP_Demo/lwIP_port/netif/xadapter.c
+index 065746b18..771e28baa 100644
+--- a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwIP_Demo/lwIP_port/netif/xadapter.c
++++ b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwIP_Demo/lwIP_port/netif/xadapter.c
+@@ -180,7 +180,7 @@ xemac_add(struct netif *netif,
+ #endif
+ #endif
+ 			default:
+-				printf("unable to determine type of EMAC with baseaddress 0x%08x\r\n",
++				xil_printf("unable to determine type of EMAC with baseaddress 0x%08x\r\n",
+ 						mac_baseaddr);
+ 				return NULL;
+ 	}
+diff --git a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwipopts.h b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwipopts.h
+index bcfe0f8b8..8f43b61e7 100644
+--- a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwipopts.h
++++ b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/lwipopts.h
+@@ -310,6 +310,10 @@
+ #define LWIP_NETIF_STATUS_CALLBACK 1
+ 
+ /* Prevent conflict with struct timeval from compiler's library. */
+ #define LWIP_TIMEVAL_PRIVATE 0
++#include <sys/time.h>
++
++#undef LWIP_IGMP
++#define LWIP_IGMP 1
+ 
+ #endif /* __LWIPOPTS_H__ */
+diff --git a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/main.c b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/main.c
+index f87a1c658..5d6c22ab0 100644
+--- a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/main.c
++++ b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo/src/main.c
+@@ -99,7 +99,9 @@
+  *
+  * When mainSELECTED_APPLICATION is set to 2 the lwIP example will be run.
+  */
++#ifndef mainSELECTED_APPLICATION
+ #define mainSELECTED_APPLICATION	1
++#endif
+ 
+ /*-----------------------------------------------------------*/
+ 
+@@ -141,13 +141,13 @@
+ 
+ /* The private watchdog is used as the timer that generates run time
+ stats.  This frequency means it will overflow quite quickly. */
+-XScuWdt xWatchDogInstance;
++extern XScuWdt xWatchDogInstance;
+ 
+ /*-----------------------------------------------------------*/
+ 
+ /* The interrupt controller is initialised in this file, and made available to
+ other modules. */
+-XScuGic xInterruptController;
++extern XScuGic xInterruptController;
+ 
+ /*-----------------------------------------------------------*/
+ 
+diff --git a/portable/GCC/ARM_CA9/portASM.S b/portable/GCC/ARM_CA9/portASM.S
+index d3aff1e35..49030c9e7 100644
+--- a/FreeRTOS/Source/portable/GCC/ARM_CA9/portASM.S
++++ b/FreeRTOS/Source/portable/GCC/ARM_CA9/portASM.S
+@@ -45,6 +45,7 @@
+ 	.extern vApplicationIRQHandler
+ 	.extern ulPortInterruptNesting
+ 	.extern ulPortTaskHasFPUContext
++	.extern vTaskTLSUpdate
+ 
+ 	.global FreeRTOS_IRQ_Handler
+ 	.global FreeRTOS_SWI_Handler
+@@ -124,6 +125,10 @@
+ 	LDRNE	R4, [R4]
+ 	STR		R4, [R2]
+ 
++    /* set/check TLS pointer */
++    LDR R0, vTaskTLSUpdateConst
++    BLX R0
++
+ 	/* Restore all system mode registers other than the SP (which is already
+ 	being used). */
+ 	POP		{R0-R12, R14}
+@@ -314,6 +319,7 @@ vTaskSwitchContextConst: .word vTaskSwitchContext
+ vApplicationIRQHandlerConst: .word vApplicationIRQHandler
+ ulPortInterruptNestingConst: .word ulPortInterruptNesting
+ vApplicationFPUSafeIRQHandlerConst: .word vApplicationFPUSafeIRQHandler
++vTaskTLSUpdateConst:	 .word vTaskTLSUpdate
+ 
+ .end
+ 
+diff --git a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo_bsp/ps7_cortexa9_0/libsrc/standalone_v6_6/src/asm_vectors.S b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo_bsp/ps7_cortexa9_0/libsrc/standalone_v6_6/src/asm_vectors.S
+index 1752548d7..12c6fa5fd 100644
+--- a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo_bsp/ps7_cortexa9_0/libsrc/standalone_v6_6/src/asm_vectors.S
++++ b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo_bsp/ps7_cortexa9_0/libsrc/standalone_v6_6/src/asm_vectors.S
+@@ -66,8 +66,10 @@
+ .text
+ 
+ .globl _vector_table
++.globl __vector_table
+ 
+ .section .vectors
++__vector_table:
+ _vector_table:
+ 	B	_boot
+ 	B	Undefined
+diff --git a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo_bsp/ps7_cortexa9_0/libsrc/standalone_v6_6/src/xil-crt0.S b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo_bsp/ps7_cortexa9_0/libsrc/standalone_v6_6/src/xil-crt0.S
+index 6beb6fd15..1f98a8cb7 100644
+--- a/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo_bsp/ps7_cortexa9_0/libsrc/standalone_v6_6/src/xil-crt0.S
++++ b/FreeRTOS/Demo/CORTEX_A9_Zynq_ZC702/RTOSDemo_bsp/ps7_cortexa9_0/libsrc/standalone_v6_6/src/xil-crt0.S
+@@ -65,6 +65,9 @@
+ 	.align	2
+ 
+ 	.text
++.Ltls_base:
++	.long	__tls_base
++
+ .Lsbss_start:
+ 	.long	__sbss_start
+ 
+@@ -131,6 +134,9 @@ _start:
+ 	bl	_profile_init
+ #endif /* PROFILING */
+ 
++	ldr r0, .Ltls_base
++	bl _set_tls
++
+    /* run global constructors */
+    bl __libc_init_array
+ 

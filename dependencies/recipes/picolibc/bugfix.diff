@@ -1,0 +1,155 @@
+/********************************************************************************
+# Copyright (c) 2018, 2024 OFFIS e.V.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License 2.0 which is available at
+# http://www.eclipse.org/legal/epl-2.0.
+#
+# SPDX-License-Identifier: EPL-2.0
+# 
+# Contributors:
+#    Jörg Walter - initial implementation
+# *******************************************************************************/
+
+diff --git a/newlib/libc/include/limits.h b/newlib/libc/include/limits.h
+index e05a6795f..dc26e2870 100644
+--- a/newlib/libc/include/limits.h
++++ b/newlib/libc/include/limits.h
+@@ -128,6 +128,35 @@
+ 
+ #endif	 /* !_LIBC_LIMITS_H_ */
+ 
++#   ifndef __LONG_LONG_MAX__
++#    define __LONG_LONG_MAX__ 9223372036854775807LL
++#   endif
++
++#   if __ISO_C_VISIBLE >= 1999
++/* Minimum and maximum values a `signed long long int' can hold.  */
++#    undef LLONG_MIN
++#    define LLONG_MIN (-LLONG_MAX-1)
++#    undef LLONG_MAX
++#    define LLONG_MAX __LONG_LONG_MAX__
++
++/* Maximum value an `unsigned long long int' can hold.  (Minimum is 0).  */
++#    undef ULLONG_MAX
++#    define ULLONG_MAX (LLONG_MAX * 2ULL + 1)
++#   endif
++
++#  if __GNU_VISIBLE
++/* Minimum and maximum values a `signed long long int' can hold.  */
++#    undef LONG_LONG_MIN
++#    define LONG_LONG_MIN (-LONG_LONG_MAX-1)
++#    undef LONG_LONG_MAX
++#    define LONG_LONG_MAX __LONG_LONG_MAX__
++
++/* Maximum value an `unsigned long long int' can hold.  (Minimum is 0).  */
++#    undef ULONG_LONG_MAX
++#    define ULONG_LONG_MAX (LONG_LONG_MAX * 2ULL + 1)
++#   endif
++
++
+ #if defined __GNUC__ && !defined _GCC_LIMITS_H_
+ /* `_GCC_LIMITS_H_' is what GCC's file defines.  */
+ #ifdef __clang__
+diff --git a/newlib/libc/include/sys/_types.h b/newlib/libc/include/sys/_types.h
+index 76ac27fd1..5bb076e5a 100644
+--- a/newlib/libc/include/sys/_types.h
++++ b/newlib/libc/include/sys/_types.h
+@@ -204,7 +204,7 @@ typedef struct
+   int __count;
+   union
+   {
+-    wint_t __wch;
++    unsigned __wch;
+     unsigned char __wchb[4];
+   } __value;		/* Value so far.  */
+ } _mbstate_t;
+diff --git a/newlib/libc/include/wchar.h b/newlib/libc/include/wchar.h
+index 8a9c4b0fe..461b2a767 100644
+--- a/newlib/libc/include/wchar.h
++++ b/newlib/libc/include/wchar.h
+@@ -96,6 +96,12 @@ struct tm;
+ typedef _mbstate_t mbstate_t;
+ #endif /* _MBSTATE_T */
+ 
++#ifndef _WINT_T
++#define _WINT_T
++typedef unsigned wint_t;
++#endif
++
++
+ wint_t	btowc (int);
+ int	wctob (wint_t);
+ size_t	mbrlen (const char *__restrict, size_t, mbstate_t *__restrict);
+@@ -223,7 +223,7 @@
+ long double wcstold_l (const wchar_t *, wchar_t **, locale_t);
+ #endif
+
+-#ifndef TINY_STDIO
++#ifndef __libstdcpp_needs_these_declarations_even_with_TINY_STDIO
+ 
+ wint_t fgetwc (__FILE *);
+ wchar_t *fgetws (wchar_t *__restrict, int, __FILE *__restrict);
+diff --git a/newlib/libc/include/wctype.h b/newlib/libc/include/wctype.h
+index 74f7ce08a..6ab8c9422 100644
+--- a/newlib/libc/include/wctype.h
++++ b/newlib/libc/include/wctype.h
+@@ -28,6 +28,11 @@ typedef int wctype_t;
+ typedef int wctrans_t;
+ #endif
+ 
++#ifndef _WINT_T
++#define _WINT_T
++typedef unsigned wint_t;
++#endif
++
+ int	iswalpha (wint_t);
+ int	iswalnum (wint_t);
+ #if __ISO_C_VISIBLE >= 1999
+diff --git a/newlib/libc/stdlib/nano-mallocr.c b/newlib/libc/stdlib/nano-mallocr.c
+index f9f443eff..273e86352 100644
+--- a/newlib/libc/stdlib/nano-mallocr.c
++++ b/newlib/libc/stdlib/nano-mallocr.c
+@@ -370,7 +370,6 @@ void * malloc(size_t s)
+         if (r == (void *)-1)
+         {
+             errno = ENOMEM;
+-            MALLOC_UNLOCK;
+             return NULL;
+         }
+         r->size = alloc_size;
+diff --git a/scripts/duplicate-names b/scripts/duplicate-names
+index 9cb9a3a35..bfb44825b 100755
+--- a/scripts/duplicate-names
++++ b/scripts/duplicate-names
+@@ -3,7 +3,7 @@ NM="$1"
+ FILE="$2"
+ OUTPUT="$3"
+ 
+-"$NM" -g "$FILE" 2>/dev/null | grep ' [A-TV-Z] ' | grep -v '__x86' | sort | uniq -d > "$OUTPUT"
++"$NM" -g "$FILE" 2>/dev/null | grep ' [A-TV-Z] ' | grep -v '__x86' | grep -v '__gnu_lto' | sort | uniq -d > "$OUTPUT"
+ if [ -e "$OUTPUT" -a -s "$OUTPUT" ]; then
+     echo "Duplicate names in ${FILE}"
+     cat "$OUTPUT"
+--- a/newlib/libc/tinystdio/stdio.h	2021-03-10 00:18:06.988604044 +0100
++++ b/newlib/libc/tinystdio/stdio.h	2021-04-15 14:04:32.013831368 +0200
+@@ -857,6 +857,9 @@
+  */
+ extern int	sscanf(const char *__buf, const char *__fmt, ...) __FORMAT_ATTRIBUTE__(scanf, 2, 3);
+ 
++/* dummy declaration for libstdc++, not actually implemented */
++extern int vsscanf(const char *__buf, const char *__fmt, va_list __ap) __FORMAT_ATTRIBUTE__(scanf, 2, 0);
++
+ /**
+    Flush \c stream.
+ 
+--- a/newlib/libc/include/stdlib.h	2023-10-19 11:57:05.658034699 +0200
++++ b/newlib/libc/include/stdlib.h	2023-10-19 11:50:42.288738277 +0200
+@@ -48,6 +48,7 @@
+ #define __need_NULL
+ #include <stddef.h>
+ 
++#include <sys/_types.h>
+ #include <sys/cdefs.h>
+ #include <machine/stdlib.h>
+ #ifndef __STRICT_ANSI__

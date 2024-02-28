@@ -1,0 +1,6 @@
+[submodule "toolchains"]
+	path = toolchains
+	url = https://github.com/eclipse-4diac/4diac-toolchain.git
+[submodule "forte"]
+	path = forte
+	url = https://github.com/eclipse-4diac/4diac-forte.git

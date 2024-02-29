@@ -1,0 +1,59 @@
+// ********************************************************************************
+//  Copyright (c) 2018, 2024 OFFIS e.V.
+// 
+//  This program and the accompanying materials are made available under the
+//  terms of the Eclipse Public License 2.0 which is available at
+//  http://www.eclipse.org/legal/epl-2.0.
+// 
+//  SPDX-License-Identifier: EPL-2.0
+//  
+//  Contributors:
+//     Jörg Walter - initial implementation
+//  *******************************************************************************/
+// 
+
+include=inc/default.txt
+
+IO_PROCESS=FAKE
+
+///////////////////////////////////
+// Examples of common options:
+///////////////////////////////////
+
+// Cross-compile for different CPU or desktop OS
+// ARCH=arm-linux-musleabihf
+
+// Build for different operating system (not Linux/Windows)
+// FIXME: This doesn't work yet
+// FORTE_ARCHITECTURE=FreeRTOSLwIP
+
+// Enable full debug output
+// CMAKE_BUILD_TYPE=Debug
+// FORTE_LOGLEVEL=LOGDEBUG
+
+// Add additional libraries from the dependencies/recipes/ directory
+// DEPS=opencv
+
+// Add extra compiler options (FORTE only); separate flags by semicolon
+// EXTRA_COMPILER_FLAGS=-std=c++17;-Wno-conversion
+
+// Add extra linker options (FORTE only)
+// EXTRA_LINKER_FLAGS=-fno-lto
+
+// Enable custom module
+// MODULE=LMS1xx
+
+// Enable communication layer
+// COM=MODBUS
+
+// Disable default module (same principle for COM=)
+// MODULE=-Arrowhead
+
+// Configure old-style I/O layer (only one can be active)
+// IO_PROCESS=EV3
+
+// Configure new-style I/O layer (multiple can be active, but only one exists :)
+// IO=EMBRICK
+
+// Configure any other CMake option (see inc/default.txt for many examples)
+// FORTE_EventChainExternalEventListSize=100

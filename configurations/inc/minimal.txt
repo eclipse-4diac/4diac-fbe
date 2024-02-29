@@ -1,0 +1,154 @@
+// ********************************************************************************
+//  Copyright (c) 2018, 2024 OFFIS e.V.
+// 
+//  This program and the accompanying materials are made available under the
+//  terms of the Eclipse Public License 2.0 which is available at
+//  http://www.eclipse.org/legal/epl-2.0.
+// 
+//  SPDX-License-Identifier: EPL-2.0
+//  
+//  Contributors:
+//     Jörg Walter - initial implementation
+//  *******************************************************************************/
+// 
+
+// (cross-)compiler architecture, e.g. arm-linux-musleabihf
+ARCH=native-toolchain
+
+
+//////////////////////////////////////////////////////////////////////////////
+// End of minimal configuration.  Ignore the rest if you like the defaults. //
+//////////////////////////////////////////////////////////////////////////////
+
+// You can split up configuration into multiple files; list any amount of
+// file names separated by comma. Settings in this file will always override
+// included settings.
+//include=
+
+// build additional packages from the ../dependencies/recipes directory, comma
+// separated list
+DEPS=
+
+// one of: Posix, Win32, MacOs, and others; not usable without extensive adaption
+FORTE_ARCHITECTURE=
+
+// Install path prefix, prepended onto install directories.
+// Note: the string "${BASEDIR}" (without quotes) will be replaced by the
+// build environment base directory, i.e. the direcotry that contains compile.py
+// Also, "${HOME}" will be replaced by the user profile (home) directory.
+CMAKE_INSTALL_PREFIX=
+
+// Add compile/link flags to all packages. Note that you may need :STRING for
+// parsing robustness.
+TOOLCHAIN_EXTRA_C_FLAGS=
+TOOLCHAIN_EXTRA_LINKER_FLAGS=
+
+// Path to the bootfile (forte.fboot)
+//FORTE_BootfileLocation=
+//FORTE_SUPPORT_BOOT_FILE=ON
+
+///////////////
+// Debugging //
+///////////////
+
+// Possible values: Debug Release RelWithDebInfo MinSizeRel.
+CMAKE_BUILD_TYPE=Release
+
+// Possible values: LOGDEBUG LOGERROR LOGWARNING LOGINFO NOLOG
+FORTE_LOGLEVEL=NOLOG
+
+// log the events received at and sent from function blocks
+// FORTE_TRACE_EVENTS=OFF
+// FORTE_TRACE_CTF=OFF
+
+///////////////////////////
+// I/O and Communication //
+///////////////////////////
+
+// I/O Modules: comma-separated list of
+// EMBRICK, PLC01A1, PLCNEXT
+IO=
+
+// old style I/O block backend: choose either IO= above, OR exactly one of
+// CONMELEON_C1, I2C_Dev, LMS_EV3, MLPI, Odroid, PiFace, Raspberry_SPS, SysFs, WagoKbus, uMIC
+//IO_PROCESS=
+
+// Communication modules: comma-separated list of
+// ETH, FBDK, HTTP, LOCAL, MODBUS, OPC_UA, PAHOMQTT, RAW, SER, STRUCT_MEMBER, TSN, XqueryClient
+// There may be more, those are untested
+COM=LOCAL
+
+// Management interface protocol: currently only DEV_MGR, OPC-UA coming soon
+FORTE_MGMCOMMANDPROTOCOL=DEV_MGR
+
+////////////////////
+// OPC-UA options //
+////////////////////
+
+// Custom hostname which is used for the OPC UA app name and app uri
+FORTE_COM_OPC_UA_CUSTOM_HOSTNAME=
+
+// Enable multicast support for OPC UA and registering with LDS
+// FIXME: there is a build error in open62541 at the moment
+FORTE_COM_OPC_UA_MULTICAST:BOOL=OFF
+
+// enable encryption support
+FORTE_COM_OPC_UA_ENCRYPTION:BOOL=ON
+
+// Port where the OPC_UA server will listen
+FORTE_COM_OPC_UA_PORT=4840
+
+////////////////////////
+// Simulation options //
+///////////////////////
+
+//FORTE_ENABLE_FMU=OFF
+//FORTE_FAKE_TIME=OFF
+
+///////////////////////////////////////////////////////////////////////////////
+// End of regular configuration. Options for highly specialised builds follow.
+///////////////////////////////////////////////////////////////////////////////
+
+// Add any other CMake configuration option here.
+
+
+
+//////////////////////
+// General Features //
+//////////////////////
+
+// FB groups to include: comma-separated list of
+// ADS, Arrowhead, CONVERT, IEC61131, POWERLINK, RECONFIGURATION, ROS, RT_Events, UTILS
+// This may be specified multiple times; all enabled modules are joined.
+// specify MODULE=-FOO to remove a single module from the list of modules
+MODULE=CONVERT,IEC61131,UTILS
+
+// Exclude Function blocks
+//FORTE_EXCLUDE_FBS=
+
+// Enable FORTE monitoring functionalities
+FORTE_SUPPORT_MONITORING:BOOL=ON
+
+// Enable support for the query management commands
+FORTE_SUPPORT_QUERY_CMD:BOOL=ON
+
+// Custom Serializeable Datatypes
+FORTE_SUPPORT_CUSTOM_SERIALIZABLE_DATATYPES:BOOL=ON
+
+// Dynamic type support
+// FORTE_USE_LUATYPES=LuaJIT
+// DEPS=luajit
+
+///////////////////////
+// Developer options //
+///////////////////////
+
+FORTE_RTTI_AND_EXCEPTIONS:BOOL=FALSE
+FORTE_MODIFY_SOURCES_ON_MISSING_GENERATED_INCLUDES=OFF
+FORTE_LINKED_STRINGDICT=OFF
+FORTE_STACKTRACE=OFF
+FORTE_SYSTEM_TESTS=OFF
+FORTE_TESTS=OFF
+FORTE_TEST_NEEDED_COMPILER_FEATURES=OFF
+//FORTE_CLANG_TIDY_MODE=WARNING
+//FORTE_CLANG_TIDY_MODE=FIX

@@ -14,6 +14,12 @@ REM  ***************************************************************************
 REM 
 setlocal
 pushd %~dp0
-toolchains\bin\sh.exe compile.sh %*
+if not exist scripts\compile.sh cd ..
+if exist toolchains\bin\sh.exe goto noinstall
+	cd toolchains
+	call etc\install-Windows.cmd
+	cd ..
+:noinstall
+toolchains\bin\sh.exe scripts\compile.sh %*
 popd
 if %0 == "%~0" pause

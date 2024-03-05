@@ -15,11 +15,12 @@ REM
 setlocal
 pushd %~dp0
 if not exist scripts\compile.sh cd ..
+set basedir=%cd%
 if exist toolchains\bin\sh.exe goto noinstall
 	cd toolchains
 	call etc\install-Windows.cmd
 	cd ..
 :noinstall
-toolchains\bin\sh.exe scripts\compile.sh %*
 popd
+%basedir%\toolchains\bin\sh.exe %basedir%\scripts\compile.sh %*
 if %0 == "%~0" pause

@@ -73,6 +73,13 @@ subdirectory ``build``. This should never be needed for simple code or
 configuration changes. However, if you change library recipes in subdirectory
 ``dependencies``, then such a clean restart may be neccessary.
 
+You can also build executables outside the `4diac-fbe` directory.  In your
+desired target directory, create a subdirectory `configurations` just like
+the one in `4diac-fbe` and call `compile.sh`/`compile.cmd` with your target
+directory as the current working directory. This will create the `build`
+directory in this location instead of the `4diac-fbe` directory, allowing you
+to reuse a single 4diac-fbe installation for multiple projects.
+
 
 Configuration management
 ------------------------

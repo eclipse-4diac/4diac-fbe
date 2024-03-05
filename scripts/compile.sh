@@ -25,14 +25,15 @@ trap '[ "$?" = 0 ] || die "Exiting due to error"' EXIT
 basedir="$(cd "$(dirname "$0")"; pwd)"
 [ -d "$basedir/scripts" ] || basedir="${basedir%/scripts}"
 srcdir="$basedir/forte/"
+builddir="$PWD/build"
 
 if [ ! -x "${basedir}/toolchains/bin/cget" ]; then
 	( cd "${basedir}/toolchains" && "./etc/install-$(uname -s).sh"; )
 fi
 
-if [ "$PATH" != "$PWD/toolchains/bin" ]; then
-	PATH="$PWD/toolchains/bin"
-	exec "$PWD/toolchains/bin/sh" "$0" "$@"
+if [ "$PATH" != "${basedir}/toolchains/bin" ]; then
+	PATH="${basedir}/toolchains/bin"
+	exec "${basedir}/toolchains/bin/sh" "$0" "$@"
 fi
 
 export LANG=C
@@ -49,21 +50,7 @@ replace() { # replace varname "foo" "bar"
 }
 
 update_forte_build_workaround() {
-    echo "$srcdir/ -X build.cmake" > dependencies/recipes/forte/package.txt
-}
-
-bootstrap_binary_packages() {
-	cd toolchains/
-	for i in *-cross-*.tar.*; do
-		[ -f "$i" ] || continue
-		bin/lzip -d < "$i" | bin/tar xv
-		mv "$i" .cache/
-	done
-	cd ..
-
-	if [ -d download-cache ]; then
-		mv download-cache toolchains/
-	fi
+    echo "$srcdir/ -X build.cmake" > "${basedir}/dependencies/recipes/forte/package.txt"
 }
 
 create_compile_commands_json() {
@@ -73,9 +60,9 @@ create_compile_commands_json() {
 	# if you have https://github.com/Sarcasm/compdb installed, header files will be included,
 	# which improves the functionality of many tools that read compile_commands.json
 	if type compdb > /dev/null 2>&1; then
-		compdb -p build/"$1"/forte/build list > compile_commands.json 2>/dev/null
+		compdb -p "$prefix/forte/build" list > "$builddir/../compile_commands.json" 2>/dev/null
 	else
-		cp build/"$1"/forte/build/compile_commands.json .
+		cp "$prefix/forte/build/compile_commands.json" "$builddir/.."
 	fi
 }
 
@@ -194,9 +181,8 @@ keep_going=
 build_one() {
 	local file="$1" config="${1%.txt}"
 	config="${config##*/}"
-	prefix="$basedir/build/$config"
-	builddir="$basedir/build/$config"
-	cachefile="$builddir/forte/build/CMakeCache.txt"
+	prefix="$builddir/$config"
+	cachefile="$prefix/forte/build/CMakeCache.txt"
 
 	reset_build_if_changed "$file"
 
@@ -204,7 +190,7 @@ build_one() {
 
 	if [ ! -L "$prefix/etc/cget/recipes" ]; then
 		# try to symlink, but if that fails (windows), copy instead -- and copy every time to keep recipes up to date
-		( cd  "$prefix/etc/cget"; ln -s ../../../../dependencies/recipes .; ) || \
+		( cd  "$prefix/etc/cget"; ln -s "${basedir}/dependencies/recipes" .; ) || \
 			cp -r "$basedir/dependencies/recipes" "$prefix/etc/cget/"
 	fi
 
@@ -218,7 +204,7 @@ build_one() {
 	"$basedir/toolchains/bin/cget" -p "$prefix" init -t "$basedir/toolchains/$target.cmake" --ccache
 
 	set_define ARCH
-	set -- -DCMAKE_INSTALL_PREFIX:STRING="$basedir/build/$config/output"
+	set -- -DCMAKE_INSTALL_PREFIX:STRING="$prefix/output"
 	for name in $defs; do
 		eval "type=\"\$defs_$name\""
 		val="${type#*:}"
@@ -235,29 +221,29 @@ build_one() {
 		-DCMAKE_INSTALL_PREFIX:STRING="$prefix" \
 		-G "$generator"; ) \
 		|| die "Dependencies of configuration '$config' failed"
-	if [ -f "$builddir/forte/build/CMakeCache.txt" -a "$basedir/dependencies/recipes/forte/build.cmake" -nt "$builddir/forte/build/CMakeCache.txt" ]; then
-		rm -rf "$builddir/forte"
+	if [ -f "$prefix/forte/build/CMakeCache.txt" -a "$basedir/dependencies/recipes/forte/build.cmake" -nt "$prefix/forte/build/CMakeCache.txt" ]; then
+		rm -rf "$prefix/forte"
 	fi
 	( $trace
 		set +e
 		"$basedir/toolchains/bin/cget" \
 			-p "$prefix" build -T install $verbose \
-			-B "$builddir" \
+			-B "$prefix" \
 			-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 			"$@" forte \
 			-G "$generator"
 		echo "Exit Status: $?"
-	) 2>&1 | tee "$basedir/build/$config.log"
+	) 2>&1 | tee "$prefix.log"
 	[ ! -f "$srcdir/__cget_sh_CMakeLists.txt" ] || mv "$srcdir/__cget_sh_CMakeLists.txt" "$srcdir/CMakeLists.txt"
 	[ -z "$keep_going" ] || return 0
-	[ "$(tail -n 1 "$basedir/build/$config.log")" = "Exit Status: 0" ] || die "Build of configuration '$config' failed"
+	[ "$(tail -n 1 "$prefix.log")" = "Exit Status: 0" ] || die "Build of configuration '$config' failed"
 
 	create_compile_commands_json "$config"
 
-	"$basedir/toolchains/etc/package-dynamic.sh" "$target" "$basedir/build/$config/output/bin/forte" || true
+	"$basedir/toolchains/etc/package-dynamic.sh" "$target" "$prefix/output/bin/forte" || true
 	if [ -n "$deploy" ]; then
 		(
-			cd "$basedir/build/$config"
+			cd "$prefix"
 			exec "$SHELL" -c "$deploy"
 		)
 	fi
@@ -283,22 +269,17 @@ while [ -n "$1" ]; do
 	shift
 done
 
-cd "$basedir"
 update_forte_build_workaround
-bootstrap_binary_packages
 
 if [ $# = 0 ]; then
 	set -- configurations/*.txt
 elif [ -d "$1" ]; then
-	set -- "$1"/*.txt
-elif [ -z "$1" ]; then
-	echo ""
-	echo "Installation successful, you can now start compilation."
-	echo ""
-	exit 0;
+	cd "$1"
+	set -- *.txt
 fi
 
 for i in "$@"; do
-	[ -f "$i" ] || i="$basedir/configurations/$i.txt"
-	( build_one "$i"; )
+	[ -f "$i" ] || i="configurations/$i.txt"
+	config="$(cd "$(dirname "$i")"; echo "$PWD/$(basename "$i")")"
+	( cd "$basedir"; build_one "$config"; )
 done

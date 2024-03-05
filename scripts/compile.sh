@@ -24,8 +24,16 @@ trap '[ "$?" = 0 ] || die "Exiting due to error"' EXIT
 
 basedir="$(cd "$(dirname "$0")"; pwd)"
 [ -d "$basedir/scripts" ] || basedir="${basedir%/scripts}"
-exe="$basedir/${0##*/}"
 srcdir="$basedir/forte/"
+
+if [ ! -x "${basedir}/toolchains/bin/cget" ]; then
+	( cd "${basedir}/toolchains" && "./etc/install-$(uname -s).sh"; )
+fi
+
+if [ "$PATH" != "$PWD/toolchains/bin" ]; then
+	PATH="$PWD/toolchains/bin"
+	exec "$PWD/toolchains/bin/sh" "$0" "$@"
+fi
 
 export LANG=C
 export LC_ALL=C
@@ -206,6 +214,7 @@ build_one() {
 	load_config "$file"
 
 	target="${defs_ARCH#*:}"
+	"$basedir/toolchains/install-crosscompiler.sh" "$target"
 	"$basedir/toolchains/bin/cget" -p "$prefix" init -t "$basedir/toolchains/$target.cmake" --ccache
 
 	set_define ARCH

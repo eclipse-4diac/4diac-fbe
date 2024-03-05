@@ -14,8 +14,6 @@
 
 include=inc/default.txt
 
-IO_PROCESS=FAKE
-
 ///////////////////////////////////
 // Examples of common options:
 ///////////////////////////////////
@@ -52,7 +50,7 @@ IO_PROCESS=FAKE
 // Configure old-style I/O layer (only one can be active)
 // IO_PROCESS=EV3
 
-// Configure new-style I/O layer (multiple can be active, but only one exists :)
+// Configure new-style I/O layer (multiple can be active)
 // IO=EMBRICK
 
 // Configure any other CMake option (see inc/default.txt for many examples)

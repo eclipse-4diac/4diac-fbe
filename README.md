@@ -1,11 +1,10 @@
-==============================================
-4Diac Runtime Environment (FORTE) Build System
-==============================================
+4Diac Runtime Environment (FORTE) Build System (4diac-fbe)
+==========================================================
 
-This repository contains a build environment for building FORTE, the run-time
-engine of the 4Diac IEC 61499 implementation.  Part of its workflow is code
-generation and recompilation of FORTE, and this environment provides the
-means to do this with as little effort as possible.
+This repository contains a build environment for building 4diac FORTE, the
+run-time engine of the 4Diac IEC 61499 implementation.  Part of its workflow
+is code generation and recompilation of FORTE, and this environment provides
+the means to do this with as little effort as possible.
 
 Furthermore, you can manage multiple builds for multiple target platforms.  As
 of this writing, it works on Linux and Windows hosts.  There should be no
@@ -32,40 +31,29 @@ executable size is around 4MB, this varies slightly across targets.
 Installation
 ============
 
-In case you have got a packaged runtime ZIP file and some accompanying toolchain
-files (including a subdirectory ``Windows`` or ``Linux``), just put all files
-into an empty directory -- but leave out the platform subdirectory that does not
-apply to you (Linux/Windows).  Then run ``install.cmd`` or ``./install.sh``.
+The easiest way to install 4diac-fbe is through an official release: Check out
+the `release` branch of `4diac-fbe` and copy either `scripts/compile.sh` or
+`scripts/compile.cmd` to the toplevel directory.  That's all.
 
 IMPORTANT NOTE for Windows users: By default, Windows has a rather short file
-name length limit. It is therefore recommended to use an installation directory
-close to the root of your drive, like ``D:\4diac-runtime``.
+name length limit.  It is therefore recommended to use an installation
+directory close to the root of your drive, like ``D:\4diac-fbe``. Also, avoid
+a path containing whitespace.
 
-The first time you run one of these scripts, the build environment will be set
-up.  If you have all neccessary toolchain files, this just means extracting them
-into the correct folders.  Otherwise, a lengthy bootstrap process is executed,
-so using pre-packaged toolchain files is heavily recommended.
-
-Furthermore, each target configuration will first have its dependencies built.
-The second build will be much faster, as only the FORTE runtime is re-built.
+The first time you run the compile script, the build environment will be set
+up by securely downloading and installing a binary release of
+`4diac-toolchains`.  If cross-compiling 4diac FORTE for a new target for the
+first time, the build environment will download an appropriate cross-compiler
+from the current `4diac-toolchains` release.
 
 
 Updating
 --------
 
-If you have a working installation and get an updated packaged runtime ZIP file,
-the update procedure works in a few easy steps:
-
- 1. rename your old runtime directory, e.g. into ``runtime.old``
- 2. extract runtime zip into the now *empty* old folder, e.g. ``runtime``
- 3. remove the new toolchains directory ``runtime/toolchains``
- 4. move the old toolchains directory to the new runtime folder
- 5. copy configurations from ``configurations`` to the new runtime as needed
- 6. copy custom dependencies, modules, types, and other extra files as needed
-
-Once you have made sure your code works fine using the new runtime build
-environment, you can delete the old runtime directory. To switch back to the old
-runtime, just rename the folders and move the toolchains directory back.
+If you run this from the git `release` branch, simply update the repo and all
+subrepositories in place. In case there were significant toolchain updates,
+run `toolchains/etc/bootstrap/clean.sh` to force downloading a current
+toolchain release.
 
 
 Usage
@@ -76,14 +64,14 @@ Compiling a runtime executable
 ------------------------------
 
 Builds are executed by ``./compile.sh``.  For convenience, a Windows
-``compile.cmd`` allows single-doubleclick-builds with no console interaction on
-Windows.
+``compile.cmd`` allows single-doubleclick-builds with no console interaction
+on Windows. If run in this way, all configurations are built (see below). The
+final binaries will be created at ``build/<config-name>/output/bin``.
 
 In order to start over (i.e., to rebuild everything from scratch), delete
-subdirectories ``cget``, ``build``, and ``output``. This should never be needed
-for simple code or configuration changes. However, if you change build
-instructions below subdirectory ``dependencies``, then such a clean restart may
-be neccessary.
+subdirectory ``build``. This should never be needed for simple code or
+configuration changes. However, if you change library recipes in subdirectory
+``dependencies``, then such a clean restart may be neccessary.
 
 
 Configuration management
@@ -115,10 +103,12 @@ configuration directories).
 Cross Compilation
 -----------------
 
-If your ``toolchains`` directory has cross-compilers installed, you can select a
-cross-compiled build by setting ``ARCH`` in the build configuration file (see
-above).  There is a file ``README.rst`` inside that directory that shows you how
-to add cross-compilers.
+You can select a cross-compiled build by setting ``ARCH`` in the build
+configuration file (see above).  If cross-compiling 4diac FORTE for a new
+target architecture for the first time, the build environment will download
+an appropriate cross-compiler from the current `4diac-toolchains` release.
+See `toolchains/etc/crosscompilers.sha256` for a list of pre-built
+crosscompilers for the current release.
 
 
 Adding generated function blocks
@@ -126,7 +116,7 @@ Adding generated function blocks
 
 When designing new Basic Function Blocks, Composite Function Blocks or Service
 Function Blocks, the runtime has to be re-compiled to include code generated by
-4DIAC-IDE.  This is the main reason this build system exists.
+4DIAC-IDE.  This is the original reason this build system was created.
 
 To add your own blocks, place the code generated by 4DIAC-IDE into
 ``Modules/EclipseGeneratedFBs/generated/``.  During the next build, it will be
@@ -149,6 +139,17 @@ If you write custom FORTE modules, put them into their own subdirectories below
 You can place the type definition files for 4diac IDE into subdirectory
 ``Types``. The idea is that you copy the contents of the ``Types`` directory
 into new 4diac projects to get access to all custom modules.
+
+The git repository has been set up to ignore all modules by default. If you
+want to add modules to a local branch or fork, put the following `.gitignore`
+file into your module directory:
+
+```
+!*
+```
+
+That way you can selectively manage modules in subrepos or local branches and
+leave other modules unmanaged as needed.
 
 
 Adding external code

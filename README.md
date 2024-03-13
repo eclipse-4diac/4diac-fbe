@@ -78,7 +78,10 @@ desired target directory, create a subdirectory `configurations` just like
 the one in `4diac-fbe` and call `compile.sh`/`compile.cmd` with your target
 directory as the current working directory. This will create the `build`
 directory in this location instead of the `4diac-fbe` directory, allowing you
-to reuse a single 4diac-fbe installation for multiple projects.
+to reuse a single 4diac-fbe installation for multiple projects. If you want
+to use a custom 4diac-forte source tree or custom dependencies, you can add
+`4diac-forte` and `dependencies` subdirectories as needed, which will
+override the default code shipped with 4diac-fbe.
 
 
 Configuration management
@@ -87,7 +90,7 @@ Configuration management
 By default, the build script will build FORTE for all configurations present in
 subdirectory ``configurations``.  Every time the script is called, it will
 update all builds with the exact same configuration.  The resulting executables
-are located in subdirectory ``output``.
+are located in subdirectory ``build/<config-name>/output``.
 
 You may customize builds by copying and modifying the default configuration file
 ``configurations/native-toolchain.txt``. By default, all configurations present
@@ -105,6 +108,12 @@ specify its name on the command line, e.g. ``./compile.sh configurations/test``.
 Note that configuration names must still be unique, even when separated into
 different directories (i.e. no two files with the same name in different
 configuration directories).
+
+Look at the default examples `configurations/native-toolchain.txt` and
+`configurations/debug.txt` for a basic configuration example. The include
+file `configuration/inc/minimal.txt` lists all available options with short
+comments. A useful almost-full-featured configuration is provided in
+`configuration/inc/default.txt`.
 
 
 Cross Compilation
@@ -140,11 +149,12 @@ tell you how to resolve the situation manually.
 Adding custom FORTE modules
 ---------------------------
 
-If you write custom FORTE modules, put them into their own subdirectories below
-``Modules``.
+If you write custom FORTE modules, put them into their own subdirectories
+below ``modules``. You can configure a different external modules directory
+by using the `FORTE_EXTERNAL_MODULES_DIRECTORY` configuration option.
 
 You can place the type definition files for 4diac IDE into subdirectory
-``Types``. The idea is that you copy the contents of the ``Types`` directory
+``types``. The idea is that you copy the contents of the ``types`` directory
 into new 4diac projects to get access to all custom modules.
 
 The git repository has been set up to ignore all modules by default. If you

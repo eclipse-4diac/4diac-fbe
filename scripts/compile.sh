@@ -23,9 +23,12 @@ die() { trap "" EXIT; echo "$exe: $*" >&2; exit 1; }
 trap '[ "$?" = 0 ] || die "Exiting due to error"' EXIT
 
 basedir="$(cd "$(dirname "$0")"; pwd)"
+buildroot="$PWD"
 [ -d "$basedir/scripts" ] || basedir="${basedir%/scripts}"
-srcdir="$basedir/forte/"
-builddir="$PWD/build"
+srcdir="$buildroot/4diac-forte/"
+[ -d "$srcdir" ] || srcdir="$basedir/forte/"
+builddir="$buildroot/build"
+extradepdir="$buildroot/dependencies/recipes/"
 
 if [ ! -x "${basedir}/toolchains/bin/cget" ]; then
 	( cd "${basedir}/toolchains" && "./etc/install-$(uname -s).sh"; )
@@ -78,6 +81,7 @@ set_define() {
 	if [ -n "$val" ]; then
 		eval "[ -n \"\$defs_$name\" ] || defs=\"\$defs\$name \""
 		replace val '${BASEDIR}' "$basedir"
+		replace val '${BUILDROOT}' "$buildroot"
 		replace val '${HOME}' "$(echo ~/)"
 		replace val '$CONFIG'  "$config"
 		eval "defs_$name=\"\$type:\$val\""
@@ -186,13 +190,20 @@ build_one() {
 
 	reset_build_if_changed "$file"
 
-	mkdir -p "$prefix/etc/cget"
+	local recipes="$prefix/etc/cget/recipes"
+	mkdir -p "$recipes"
 
-	if [ ! -L "$prefix/etc/cget/recipes" ]; then
-		# try to symlink, but if that fails (windows), copy instead -- and copy every time to keep recipes up to date
-		( cd  "$prefix/etc/cget"; ln -s "${basedir}/dependencies/recipes" .; ) || \
-			cp -r "$basedir/dependencies/recipes" "$prefix/etc/cget/"
+	# try to symlink, but if that fails (windows), copy instead -- and copy every time to keep recipes up to date
+	if [ -d "$extradepdir" ]; then
+		cd "$extradepdir"
+		for i in */; do
+			ln -sf "$extradepdir/$i" "$recipes/" || cp -r "$extradepdir/$i" "$recipes/"
+		done
 	fi
+	cd "$basedir/dependencies/recipes"
+	for i in */; do
+		[ -d "$recipes/$i" ] || ln -sf "$PWD/$i" "$recipes/" || cp -r "$i" "$recipes/"
+	done
 
 	set_define ARCH STRING "native-toolchain"
 

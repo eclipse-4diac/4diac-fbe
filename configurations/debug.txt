@@ -16,5 +16,4 @@ include=inc/default.txt
 
 CMAKE_BUILD_TYPE=Debug
 FORTE_LOGLEVEL=LOGDEBUG
-FORTE_EXTERNAL_MODULES_DIRECTORY=/nonexistant
 

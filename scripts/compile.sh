@@ -31,7 +31,7 @@ builddir="$buildroot/build"
 extradepdir="$buildroot/dependencies/recipes/"
 
 if [ ! -x "${basedir}/toolchains/bin/cget" ]; then
-	( cd "${basedir}/toolchains" && "./etc/install-$(uname -s).sh"; )
+	( cd "${basedir}/toolchains" && "./etc/install-$(uname -s)-$(uname -m).sh"; )
 fi
 
 if [ "$PATH" != "${basedir}/toolchains/bin" ]; then

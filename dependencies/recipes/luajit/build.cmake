@@ -44,9 +44,17 @@ if (CMAKE_CROSSCOMPILING)
     message(FATAL_ERROR "Don't know how to determine appropriate host compiler for this platform")
   endif()
   string(REGEX REPLACE "hf$" "" host_arch "${host_arch}")
+  string(REGEX REPLACE "eabi$" "" host_arch "${host_arch}")
   string(REGEX REPLACE "-gnu$" "-musl" host_arch "${host_arch}")
+  string(REGEX REPLACE "^arm-linux-musl$" "arm-linux-musleabi" host_arch "${host_arch}")
 
-  set(HOST_CC "${TOOLCHAINS_ROOT}/${host_arch}/bin/${host_arch}-gcc")
+  set(HOST_CC "${TOOLCHAINS_ROOT}/${host_arch}/bin/${host_arch}-gcc${CMAKE_EXECUTABLE_SUFFIX}")
+  if (NOT EXISTS "${HOST_CC}")
+    execute_process(COMMAND "${TOOLCHAINS_ROOT}/bin/sh${CMAKE_EXECUTABLE_SUFFIX}" "${TOOLCHAINS_ROOT}/install-crosscompiler.sh" "${host_arch}")
+  endif()
+  if (NOT EXISTS "${HOST_CC}")
+    message(FATAL_ERROR "LUAJit needs a ${host_arch} crosscompiler, which could not be found.")
+  endif()
 endif()
 
 

@@ -8,8 +8,8 @@
 /dependencies/*
 !/dependencies/recipes
 compile_commands.json
-/Modules/*/*
-!/Modules/*/.gitignore
+/modules/*/*
+!/modules/*/.gitignore
 /*.zip
 /dependencies/recipes/forte/package.txt
 /compile.sh

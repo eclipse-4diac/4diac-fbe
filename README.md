@@ -1,9 +1,9 @@
-4Diac Runtime Environment (FORTE) Build System (4diac-fbe)
+4diac FORTE Build System (4diac-fbe)
 ==========================================================
 
 This repository contains a build environment for building 4diac FORTE, the
-run-time engine of the 4Diac IEC 61499 implementation.  Part of its workflow
-is code generation and recompilation of FORTE, and this environment provides
+run-time engine of the 4diac IEC 61499 implementation.  Part of its workflow
+is code generation and recompilation of 4diac FORTE, and this environment provides
 the means to do this with as little effort as possible.
 
 Furthermore, you can manage multiple builds for multiple target platforms.  As
@@ -15,7 +15,7 @@ easy to add, others might need some more work.
 Cross-compilation is built-in: you can generate binaries for all supported
 platforms on a single build host.
 
-The FORTE executable built by this build environment will have all optional
+The 4diac FORTE executable built by this build environment will have all optional
 features enabled: OPC-UA, MQTT, modbus, and with an extra setup step also
 openPOWERLINK.  It does not enable platform-specific features like OPC (no -UA)
 by default, but different builds can have different target-specific
@@ -42,7 +42,7 @@ a path containing whitespace.
 
 The first time you run the compile script, the build environment will be set
 up by securely downloading and installing a binary release of
-`4diac-toolchains`.  If cross-compiling 4diac FORTE for a new target for the
+`4diac-toolchains`.  If cross-compiling 4diac 4diac for a new target for the
 first time, the build environment will download an appropriate cross-compiler
 from the current `4diac-toolchains` release.
 
@@ -87,7 +87,7 @@ override the default code shipped with 4diac-fbe.
 Configuration management
 ------------------------
 
-By default, the build script will build FORTE for all configurations present in
+By default, the build script will build 4diac FORTE for all configurations present in
 subdirectory ``configurations``.  Every time the script is called, it will
 update all builds with the exact same configuration.  The resulting executables
 are located in subdirectory ``build/<config-name>/output``.
@@ -146,16 +146,16 @@ them perfectly intact; if it can't do so automatically, the build will abort and
 tell you how to resolve the situation manually.
 
 
-Adding custom FORTE modules
+Adding custom 4diac FORTE modules
 ---------------------------
 
-If you write custom FORTE modules, put them into their own subdirectories
+If you write custom 4diac FORTE modules, put them into their own subdirectories
 below ``modules``. You can configure a different external modules directory
 by using the `FORTE_EXTERNAL_MODULES_DIRECTORY` configuration option.
 
 You can place the type definition files for 4diac IDE into subdirectory
 ``types``. The idea is that you copy the contents of the ``types`` directory
-into new 4diac projects to get access to all custom modules.
+into new 4diac IDE projects to get access to all custom modules.
 
 The git repository has been set up to ignore all modules by default. If you
 want to add modules to a local branch or fork, put the following `.gitignore`

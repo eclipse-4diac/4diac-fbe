@@ -42,7 +42,7 @@ a path containing whitespace.
 
 The first time you run the compile script, the build environment will be set
 up by securely downloading and installing a binary release of
-`4diac-toolchains`.  If cross-compiling 4diac 4diac for a new target for the
+`4diac-toolchains`.  If cross-compiling 4diac FORTE for a new target for the
 first time, the build environment will download an appropriate cross-compiler
 from the current `4diac-toolchains` release.
 

@@ -26,6 +26,7 @@ basedir="$(cd "$(dirname "$0")"; pwd)"
 buildroot="$PWD"
 [ -d "$basedir/scripts" ] || basedir="${basedir%/scripts}"
 srcdir="$buildroot/4diac-forte/"
+[ -d "$srcdir" ] || srcdir="$buildroot/forte/"
 [ -d "$srcdir" ] || srcdir="$basedir/forte/"
 builddir="$buildroot/build"
 extradepdir="$buildroot/dependencies/recipes/"
@@ -53,7 +54,9 @@ replace() { # replace varname "foo" "bar"
 }
 
 update_forte_build_workaround() {
-    echo "$srcdir/ -X build.cmake" > "${basedir}/dependencies/recipes/forte/package.txt"
+    mkdir -p "${builddir}/dependencies/recipes/forte/"
+    cp -n "${basedir}/dependencies/recipes/forte/build.cmake" "${builddir}/dependencies/recipes/forte/"
+    echo "$srcdir/ -X build.cmake" > "${builddir}/dependencies/recipes/forte/package.txt"
 }
 
 create_compile_commands_json() {

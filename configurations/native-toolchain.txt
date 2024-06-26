@@ -54,4 +54,7 @@ include=inc/default.txt
 // IO=EMBRICK
 
 // Configure any other CMake option (see inc/default.txt for many examples)
-// FORTE_EventChainExternalEventListSize=100
+// FORTE_EventChainExternalEventListSize=128
+
+// Execute other commands after building
+// DEPLOY=scp output/bin/forte foo@10.0.0.1:

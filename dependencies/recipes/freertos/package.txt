@@ -1,0 +1,1 @@
+https://github.com/FreeRTOS/FreeRTOS/releases/download/202012.00/FreeRTOSv202012.00.zip -X build.cmake -H sha256:94a43e72bedbb68255c96e6b5787b2b2cc712128c2c1f9a1f085a51073c21de8

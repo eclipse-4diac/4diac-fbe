@@ -14,6 +14,7 @@
 
 project(FORTE CXX)
 cmake_minimum_required(VERSION 3.12)
+include(toolchain-utils)
 
 #############################################################################
 # Build Type
@@ -27,6 +28,9 @@ if (FORTE_ARCHITECTURE STREQUAL "FreeRTOSLwIP")
   find_package(freertos)
   set(FORTE_BUILD_EXECUTABLE OFF CACHE BOOL "" FORCE)
   set(FORTE_BUILD_STATIC_LIBRARY ON CACHE BOOL "" FORCE)
+elseif (TOOLCHAIN_ABI MATCHES "gnu")
+  set(FORTE_ARCHITECTURE "Posix" CACHE STRING "")
+  patch("src/arch/posix/main.cpp" "  startupHook" "  if (getenv(\"FORTE_RUNDIR\")) { chdir(getenv(\"FORTE_RUNDIR\")); unsetenv(\"FORTE_RUNDIR\"); } startupHook")
 elseif (UNIX)
   set(FORTE_ARCHITECTURE "Posix" CACHE STRING "")
 elseif (WIN32)

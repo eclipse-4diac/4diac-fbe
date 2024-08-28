@@ -14,4 +14,5 @@
 
 include=test-win.txt
 
+ARCH=i686-w64-mingw32
 FORTE_WINDOWS_XP_COMPAT:BOOL=TRUE

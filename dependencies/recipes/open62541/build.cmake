@@ -51,6 +51,7 @@ if (WIN32)
   # Windows XP compatibility
   patch(arch/win32/ua_architecture.h "_WIN32_WINNT" "_disabled_WIN32_WINNT")
   add_compile_definitions(_WIN32_WINNT=0x0501)
+  set(UA_ARCHITECTURE "wec7" CACHE STRING "")
 
   file(COPY ${CGET_RECIPE_DIR}/inet_pton.h DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/src)
   add_compile_options(-include inet_pton.h -Wno-unused-function)

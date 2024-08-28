@@ -25,6 +25,9 @@ trap '[ "$?" = 0 ] || die "Exiting due to error"' EXIT
 basedir="$(cd "$(dirname "$0")"; pwd)"
 buildroot="$PWD"
 [ -d "$basedir/scripts" ] || basedir="${basedir%/scripts}"
+
+[ -d "$basedir/toolchains" ] || exec "$(readlink -f "$0")" "$@"
+
 srcdir="$buildroot/4diac-forte/"
 [ -d "$srcdir" ] || srcdir="$buildroot/forte/"
 [ -d "$srcdir" ] || srcdir="$basedir/forte/"

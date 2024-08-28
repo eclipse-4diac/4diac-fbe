@@ -14,8 +14,7 @@
 
 include=test-all.txt
 
-ARCH=i686-w64-mingw32
-CMAKE_BUILD_TYPE=Release
+ARCH=x86_64-w64-mingw32
 
 // needs WinPcap
 DEPS=-openpowerlink

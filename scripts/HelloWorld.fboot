@@ -1,0 +1,10 @@
+;<Request ID="1" Action="CREATE"><FB Name="HELLO" Type="EMB_RES" /></Request>
+HELLO;<Request ID="2" Action="CREATE"><FB Name="HelloWorld.STEST_END" Type="STEST_END" /></Request>
+HELLO;<Request ID="3" Action="CREATE"><FB Name="HelloWorld.CSV_WRITER_1" Type="CSV_WRITER_1" /></Request>
+HELLO;<Request ID="4" Action="WRITE"><Connection Source="TRUE" Destination="HelloWorld.CSV_WRITER_1.QI" /></Request>
+HELLO;<Request ID="5" Action="WRITE"><Connection Source="&apos;helloworld.txt&apos;" Destination="HelloWorld.CSV_WRITER_1.FILE_NAME" /></Request>
+HELLO;<Request ID="6" Action="WRITE"><Connection Source="STRING#&apos;Hello World!&apos;" Destination="HelloWorld.CSV_WRITER_1.SD_1" /></Request>
+HELLO;<Request ID="7" Action="CREATE"><Connection Source="HelloWorld.CSV_WRITER_1.INITO" Destination="HelloWorld.CSV_WRITER_1.REQ" /></Request>
+HELLO;<Request ID="8" Action="CREATE"><Connection Source="HelloWorld.CSV_WRITER_1.CNF" Destination="HelloWorld.STEST_END.REQ" /></Request>
+HELLO;<Request ID="9" Action="CREATE"><Connection Source="START.COLD" Destination="HelloWorld.CSV_WRITER_1.INIT" /></Request>
+HELLO;<Request ID="10" Action="START"/>

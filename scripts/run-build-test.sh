@@ -7,14 +7,18 @@
 # http://www.eclipse.org/legal/epl-2.0.
 #
 # SPDX-License-Identifier: EPL-2.0
-# 
+#
 # Contributors:
 #    Jörg Walter - initial implementation
 # *******************************************************************************/
 #
 
 cd "$(dirname "$0")"/..
-./scripts/compile.sh -k configurations/test/
+./scripts/compile.sh "$@" configurations/test/
 echo "____________________________________________________________________________"
-echo "Failed tests:"
-tail -n 1 build/*.log | grep -B 1 "Exit Status: [^0]"
+echo "Test results:"
+
+cd build
+for i in test-*/; do
+	../scripts/test-basic-execution.sh "$i"
+done

@@ -249,12 +249,13 @@ build_one() {
 		echo "Exit Status: $?"
 	) 2>&1 | tee "$prefix.log"
 	[ ! -f "$srcdir/__cget_sh_CMakeLists.txt" ] || mv "$srcdir/__cget_sh_CMakeLists.txt" "$srcdir/CMakeLists.txt"
+	"$basedir/toolchains/etc/package-dynamic.sh" "$target" "$prefix/output/bin/forte" || true
+
 	[ -z "$keep_going" ] || return 0
 	[ "$(tail -n 1 "$prefix.log")" = "Exit Status: 0" ] || die "Build of configuration '$config' failed"
 
 	create_compile_commands_json "$config"
 
-	"$basedir/toolchains/etc/package-dynamic.sh" "$target" "$prefix/output/bin/forte" || true
 	if [ -n "$deploy" ]; then
 		(
 			cd "$prefix"

@@ -45,6 +45,8 @@ fi
 
 export LANG=C
 export LC_ALL=C
+# make python-based code generators deterministic (e.g. open62541)
+export PYTHONHASHSEED=0
 export CGET_CACHE_DIR="$basedir/toolchains/download-cache"
 export CLICOLOR_FORCE=1
 

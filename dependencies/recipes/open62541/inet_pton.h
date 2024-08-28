@@ -11,12 +11,12 @@
 #    Jörg Walter - initial implementation
 # *******************************************************************************/
 
-// from https://stackoverflow.com/a/20817001
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
+#if _WIN32_WINNT < 0x0600
 #include <winsock2.h>
 #include <windows.h>
 #include <ws2tcpip.h>
+
+// from https://stackoverflow.com/a/20817001
 static int InetPton(int af, const char *src, void *dst)
 {
   struct sockaddr_storage ss;
@@ -41,3 +41,5 @@ static int InetPton(int af, const char *src, void *dst)
   return 0;
 }
 #define if_nametoindex(x) (0)
+
+#endif

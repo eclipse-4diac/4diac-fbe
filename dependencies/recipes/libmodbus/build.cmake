@@ -31,7 +31,12 @@ string(REGEX REPLACE "@LIBMODBUS_VERSION_MICRO@" "1" PATCHING "${PATCHING}")
 string(REGEX REPLACE "@LIBMODBUS_VERSION@" "3.1.1" PATCHING "${PATCHING}")
 file(WRITE src/modbus-version.h "${PATCHING}")
 
-if (UNIX)
+if (APPLE)
+  file(WRITE config.h "
+#define HAVE_DECL_TIOCM_RTS 1
+#define HAVE_STRLCPY 1
+")
+elseif (UNIX)
   file(WRITE config.h "
 #define HAVE_BYTESWAP_H 1
 #define HAVE_ACCEPT4 1

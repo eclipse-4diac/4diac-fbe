@@ -15,6 +15,10 @@
 project(open62541 C CXX)
 cmake_minimum_required(VERSION 2.8.11)
 
+include(toolchain-utils)
+
+set(Python3_EXECUTABLE ${TOOLCHAINS_ROOT}/bin/python)
+
 # general configuration
 set(UA_ENABLE_AMALGAMATION ON CACHE BOOL "")
 set(UA_ENABLE_NONSTANDARD_STATELESS ON CACHE BOOL "")
@@ -23,14 +27,15 @@ set(UA_ENABLE_NONSTANDARD_UDP ON CACHE BOOL "")
 set(UA_ENABLE_PUBSUB ON CACHE BOOL "")
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(UA_ENABLE_PUBSUB_ETH_UADP ON CACHE BOOL "")
+elseif (APPLE)
+  add_definitions("-DIPV6_ADD_MEMBERSHIP=IPV6_JOIN_GROUP")
+  add_definitions("-DIPV6_DROP_MEMBERSHIP=IPV6_LEAVE_GROUP")
 endif()
 set(UA_ENABLE_PUBSUB_INFORMATIONMODEL ON CACHE BOOL "")
 set(UA_ENABLE_PUBSUB_INFORMATIONMODEL_METHODS ON CACHE BOOL "")
 
 set(UA_ENABLE_DETERMINISTIC_RNG ON CACHE BOOL "")
 set(UA_ENABLE_ENCRYPTION_OPENSSL ON CACHE BOOL "")
-
-include(toolchain-utils)
 
 # add mDNS auto-discovery support
 # FIXME: somehow the mdnsd commit doesn't contain the required files
@@ -67,5 +72,6 @@ add_definitions("\"-DFIXME_get_check_issued(storeCtx,a,b)=(X509_check_issued(a,b
 patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "check_add_cc_flag\\(\"-Werror\"\\)" "")
 patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "check_add_cc_flag\\(\"-Wno-static-in-inline\"\\)" "")
 patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "CMAKE_INTERPROCEDURAL_OPTIMIZATION" "disabled_CMAKE_INTERPROCEDURAL_OPTIMIZATION")
+patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "SANITIZER_FLAGS \"[^\"]*\"" "SANITIZER_FLAGS \"\"")
 
 include(${CGET_CMAKE_ORIGINAL_SOURCE_FILE})

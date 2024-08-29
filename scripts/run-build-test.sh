@@ -14,6 +14,12 @@
 #
 
 cd "$(dirname "$0")"/..
+
+if [ "$(uname -s)" != "Linux" ]; then
+	echo "This script only works properly on Linux."
+	exit 1
+fi
+
 ./scripts/compile.sh "$@" configurations/test/
 echo "____________________________________________________________________________"
 echo "Test results:"

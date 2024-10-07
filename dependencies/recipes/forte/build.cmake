@@ -12,7 +12,7 @@
 # *******************************************************************************/
 #
 
-project(FORTE CXX)
+project(forte CXX)
 cmake_minimum_required(VERSION 3.12)
 include(toolchain-utils)
 
@@ -24,21 +24,19 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "")
 endif()
 
-patch("src/arch/posix/main.cpp" "  startupHook" "  fbe_startupHook")
-
 if (FORTE_ARCHITECTURE STREQUAL "FreeRTOSLwIP")
   add_definitions("-Dfbe_startupHook=startupHook")
   find_package(freertos)
   set(FORTE_BUILD_EXECUTABLE OFF CACHE BOOL "" FORCE)
   set(FORTE_BUILD_STATIC_LIBRARY ON CACHE BOOL "" FORCE)
 elseif (TOOLCHAIN_ABI MATCHES "gnu")
-  add_definitions("\"-Dfbe_startupHook(x,y)=if (getenv(\\\"FORTE_RUNDIR\\\")) { chdir(getenv(\\\"FORTE_RUNDIR\\\")); unsetenv(\\\"FORTE_RUNDIR\\\"); } startupHook(x,y)\"")
+  add_link_options("-Wl,--wrap,initForte")
+  SET_PROPERTY(GLOBAL APPEND PROPERTY FORTE_SOURCE_C "${CGET_RECIPE_DIR}/dynamic-link-wrapper.c")
+  SET_PROPERTY(GLOBAL APPEND PROPERTY FORTE_SOURCE_C_GROUP ".")
   set(FORTE_ARCHITECTURE "Posix" CACHE STRING "")
 elseif (UNIX)
-  add_definitions("-Dfbe_startupHook=startupHook")
   set(FORTE_ARCHITECTURE "Posix" CACHE STRING "")
 elseif (WIN32)
-  add_definitions("-Dfbe_startupHook=startupHook")
   set(FORTE_ARCHITECTURE "Win32" CACHE STRING "")
   set(FORTE_WINDOWS_XP_COMPAT ON CACHE BOOL "")
 else ()

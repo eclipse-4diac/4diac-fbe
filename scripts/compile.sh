@@ -278,7 +278,12 @@ verbose=
 generator=Ninja
 while [ -n "$1" ]; do
 	case "$1" in
-		-v) verbose="-v"; generator="Unix Makefiles"; export MAKEFLAGS=-j1; export NINJAFLAGS=-j1; set_define CMAKE_VERBOSE_MAKEFILE BOOL ON;; # export trace="set -x";;
+		-v) verbose="-v";
+			generator="Unix Makefiles";
+			export MAKEFLAGS=-j1;
+			export NINJAFLAGS=-j1;
+			export CMAKE_BUILD_PARALLEL_LEVEL=1;
+			set_define CMAKE_VERBOSE_MAKEFILE BOOL ON;;
 		-d) export trace="set -x";;
 		-c) compile_commands=1;;
 		-k) keep_going=1;;

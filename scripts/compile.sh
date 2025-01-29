@@ -152,7 +152,7 @@ prepare_recipe_dir() {
 		while [ -n "$version" ]; do
 			if [ -d "$pkgname$version" ]; then
 				ln -sf "$pkgname$version" "$pkgname" || cp -r "$pkgname$version" "$pkgname"
-				return
+				break
 			fi
 			version="${version%[@.]*}"
 		done

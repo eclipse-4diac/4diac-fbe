@@ -151,6 +151,7 @@ prepare_recipe_dir() {
 		# select matching recipe, if any
 		while [ -n "$version" ]; do
 			if [ -d "$pkgname$version" ]; then
+				rm -rf "$pkgname"
 				ln -sf "$pkgname$version" "$pkgname" || cp -r "$pkgname$version" "$pkgname"
 				break
 			fi

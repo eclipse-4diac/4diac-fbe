@@ -17,7 +17,7 @@
 #include <ws2tcpip.h>
 
 // from https://stackoverflow.com/a/20817001
-static int InetPton(int af, const char *src, void *dst)
+static inline int InetPton(int af, const char *src, void *dst)
 {
   struct sockaddr_storage ss;
   int size = sizeof(ss);
@@ -41,5 +41,28 @@ static int InetPton(int af, const char *src, void *dst)
   return 0;
 }
 #define if_nametoindex(x) (0)
+
+static inline const char *inet_ntop(int af, const void *src, char *dst, socklen_t size)
+{
+	struct sockaddr_storage ss;
+	unsigned long s = size;
+
+	ZeroMemory(&ss, sizeof(ss));
+	ss.ss_family = af;
+
+	switch(af) {
+		case AF_INET:
+			((struct sockaddr_in *)&ss)->sin_addr = *(const struct in_addr *)src;
+			break;
+		case AF_INET6:
+			((struct sockaddr_in6 *)&ss)->sin6_addr = *(const struct in6_addr *)src;
+			break;
+		default:
+			return NULL;
+	}
+	/* cannot direclty use &size because of strict aliasing rules */
+	return (WSAAddressToString((struct sockaddr *)&ss, sizeof(ss), NULL, dst, &s) == 0)?
+	dst : NULL;
+}
 
 #endif

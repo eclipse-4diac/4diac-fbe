@@ -56,13 +56,31 @@ if (WIN32)
   # add_definitions("-D__thread=")
   add_definitions("-Wno-error")
 
-  # Windows XP compatibility
+  # Windows XP compatibility: replace WSAPoll
+  download_extra_source(poll release-1.5.1.zip 
+    https://github.com/bmc/poll/archive/refs/tags/release-1.5.1.zip
+    51cf2a0133b6a5bf5241557b948d334a41aa58657e19442b93bd7816ab9b303f)
+  file(ARCHIVE_EXTRACT INPUT "${SOURCE_poll}"
+	  DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/include
+	  PATTERNS *.h)
+  file(ARCHIVE_EXTRACT INPUT "${SOURCE_poll}"
+	  DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/arch
+	  PATTERNS *.c *.h)
+  patch(arch/win32/ua_architecture.h "WSAPoll" "poll")
+  patch(arch/win32/ua_architecture.h "POLLRDNORM" "POLLIN")
+  patch(arch/win32/ua_architecture.h "POLLWRNORM" "POLLOUT")
+  patch(arch/win32/ua_architecture.h "\\(LPWSAPOLLFD\\)" "")
+  patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "win32/ua_clock.c" "win32/ua_clock.c \${PROJECT_SOURCE_DIR}/arch/poll-release-1.5.1/poll.c")
+  add_compile_options("SHELL: -include poll-release-1.5.1/poll.h")
+  add_compile_options(-Dpoll=ua_poll_emulation)
+
+  # Windows XP compatibility: force old windows version define
   patch(arch/win32/ua_architecture.h "_WIN32_WINNT" "_disabled_WIN32_WINNT")
   add_compile_definitions(_WIN32_WINNT=0x0501)
-  set(UA_ARCHITECTURE "wec7" CACHE STRING "")
+  set(UA_ARCHITECTURE "win32" CACHE STRING "")
 
-  file(COPY ${CGET_RECIPE_DIR}/inet_pton.h DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/src)
-  add_compile_options(-include inet_pton.h -Wno-unused-function)
+  file(COPY ${CGET_RECIPE_DIR}/inet_pton.h DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  add_compile_options("SHELL: -include inet_pton.h")
   # win64 mingw somehow mixes up the exception models
   add_compile_options(-fno-exceptions)
 endif()

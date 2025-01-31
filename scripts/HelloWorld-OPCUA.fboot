@@ -1,0 +1,28 @@
+;<Request ID="1" Action="CREATE"><FB Name="HELLO" Type="EMB_RES" /></Request>
+HELLO;<Request ID="2" Action="CREATE"><FB Name="HelloWorld.CSV_WRITER_1" Type="CSV_WRITER_1" /></Request>
+HELLO;<Request ID="3" Action="WRITE"><Connection Source="&apos;helloworld.txt&apos;" Destination="HelloWorld.CSV_WRITER_1.FILE_NAME" /></Request>
+HELLO;<Request ID="4" Action="CREATE"><FB Name="HelloWorld.STEST_END" Type="STEST_END" /></Request>
+HELLO;<Request ID="5" Action="CREATE"><FB Name="HelloWorld.CLIENT_1" Type="CLIENT_0_1" /></Request>
+HELLO;<Request ID="6" Action="WRITE"><Connection Source="FALSE" Destination="HelloWorld.CLIENT_1.QI" /></Request>
+HELLO;<Request ID="7" Action="WRITE"><Connection Source="&quot;opc_ua[READ;opc.tcp://127.0.0.1:61498#;/Objects/HelloWorld]&quot;" Destination="HelloWorld.CLIENT_1.ID" /></Request>
+HELLO;<Request ID="8" Action="CREATE"><FB Name="HelloWorld.PUBLISH_1" Type="PUBLISH_1" /></Request>
+HELLO;<Request ID="9" Action="WRITE"><Connection Source="TRUE" Destination="HelloWorld.PUBLISH_1.QI" /></Request>
+HELLO;<Request ID="10" Action="WRITE"><Connection Source="&quot;opc_ua[WRITE;/Objects/HelloWorld]&quot;" Destination="HelloWorld.PUBLISH_1.ID" /></Request>
+HELLO;<Request ID="11" Action="CREATE"><FB Name="HelloWorld.STRING2STRING" Type="STRING2STRING" /></Request>
+HELLO;<Request ID="12" Action="CREATE"><FB Name="HelloWorld.STRING2STRING_1" Type="STRING2STRING" /></Request>
+HELLO;<Request ID="13" Action="WRITE"><Connection Source="&apos;Hello World!&apos;" Destination="HelloWorld.STRING2STRING_1.IN" /></Request>
+HELLO;<Request ID="14" Action="CREATE"><Connection Source="START.COLD" Destination="HelloWorld.PUBLISH_1.INIT" /></Request>
+HELLO;<Request ID="15" Action="CREATE"><Connection Source="HelloWorld.CSV_WRITER_1.CNF" Destination="HelloWorld.STEST_END.REQ" /></Request>
+HELLO;<Request ID="16" Action="CREATE"><Connection Source="HelloWorld.CLIENT_1.INITO" Destination="HelloWorld.CSV_WRITER_1.INIT" /></Request>
+HELLO;<Request ID="17" Action="CREATE"><Connection Source="HelloWorld.PUBLISH_1.INITO" Destination="HelloWorld.CLIENT_1.INIT" /></Request>
+HELLO;<Request ID="18" Action="CREATE"><Connection Source="HelloWorld.PUBLISH_1.CNF" Destination="HelloWorld.CLIENT_1.REQ" /></Request>
+HELLO;<Request ID="19" Action="CREATE"><Connection Source="HelloWorld.CLIENT_1.CNF" Destination="HelloWorld.STRING2STRING.REQ" /></Request>
+HELLO;<Request ID="20" Action="CREATE"><Connection Source="HelloWorld.STRING2STRING.CNF" Destination="HelloWorld.CSV_WRITER_1.REQ" /></Request>
+HELLO;<Request ID="21" Action="CREATE"><Connection Source="HelloWorld.CSV_WRITER_1.INITO" Destination="HelloWorld.STRING2STRING_1.REQ" /></Request>
+HELLO;<Request ID="22" Action="CREATE"><Connection Source="HelloWorld.STRING2STRING_1.CNF" Destination="HelloWorld.PUBLISH_1.REQ" /></Request>
+HELLO;<Request ID="23" Action="CREATE"><Connection Source="HelloWorld.CLIENT_1.QO" Destination="HelloWorld.CSV_WRITER_1.QI" /></Request>
+HELLO;<Request ID="24" Action="CREATE"><Connection Source="HelloWorld.PUBLISH_1.QO" Destination="HelloWorld.CLIENT_1.QI" /></Request>
+HELLO;<Request ID="25" Action="CREATE"><Connection Source="HelloWorld.CLIENT_1.RD_1" Destination="HelloWorld.STRING2STRING.IN" /></Request>
+HELLO;<Request ID="26" Action="CREATE"><Connection Source="HelloWorld.STRING2STRING.OUT" Destination="HelloWorld.CSV_WRITER_1.SD_1" /></Request>
+HELLO;<Request ID="27" Action="CREATE"><Connection Source="HelloWorld.STRING2STRING_1.OUT" Destination="HelloWorld.PUBLISH_1.SD_1" /></Request>
+HELLO;<Request ID="28" Action="START"/>

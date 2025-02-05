@@ -25,10 +25,10 @@ run() {
 
 for i in "$@"; do (
 	i="${i%/}"
-	[ -f "$i.log" ] || die "Error in dependencies: $i"
-	tail -n 1 "$i.log" | grep -B 1 "Exit Status: [^0]" && die
+	[ -f "$i/forte.log" ] || die "Error in dependencies: $i"
+	tail -n 1 "$i/forte.log" | grep "### Finished successfully." > /dev/null || die
 	case "$i" in
-	test-minimal)
+	*/test-minimal|test-minimal)
 		run "$i"/output/bin/forte*  -f "$scripts"/HelloWorld.fboot > "$i.out" 2>&1 || die "Could not execute $i forte";;
 	*)
 		run "$i"/output/bin/forte*  -f "$scripts"/HelloWorld-OPCUA.fboot -op 61498 > "$i.out" 2>&1 || die "Could not execute $i forte";;

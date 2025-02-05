@@ -14,43 +14,48 @@
 #
 
 ################################################################################
-### low-level helper variables/functions
+### low-level bootstrap/helper functions
 ################################################################################
 
 set -e
 exe="$0"
-die() { trap "" EXIT; echo "$exe: $*" >&2; exit 1; }
+die() { trap "" EXIT; echo "### ${exe##*/}: $*" >&2; exit 1; }
 trap '[ "$?" = 0 ] || die "Exiting due to error"' EXIT
 
-basedir="$(cd "$(dirname "$0")"; pwd)"
-buildroot="$PWD"
-[ -d "$basedir/scripts" ] || basedir="${basedir%/scripts}"
+find_basedir() {
+	basedir="$(cd "$(dirname "$0")"; pwd)"
+	[ -d "$basedir/scripts" ] || basedir="${basedir%/scripts}"
+	[ -d "$basedir/toolchains" ] || exec "$(readlink -f "$exe")" "$@"
+}
 
-[ -d "$basedir/toolchains" ] || exec "$(readlink -f "$0")" "$@"
+find_subdirs() {
+	buildroot="$PWD"
+	srcdir="$buildroot/4diac-forte/"
+	[ -d "$srcdir" ] || srcdir="$buildroot/forte/"
+	[ -d "$srcdir" ] || srcdir="$basedir/forte/"
+	builddir="$buildroot/build"
 
-srcdir="$buildroot/4diac-forte/"
-[ -d "$srcdir" ] || srcdir="$buildroot/forte/"
-[ -d "$srcdir" ] || srcdir="$basedir/forte/"
-builddir="$buildroot/build"
+	depdir="$basedir/dependencies/recipes"
+	extradepdir="$buildroot/dependencies/recipes/"
+}
 
-depdir="$basedir/dependencies/recipes"
-extradepdir="$buildroot/dependencies/recipes/"
+cleanup_execution_environment() {
+	if [ "$PATH" != "$basedir/toolchains/bin" ]; then
+		PATH="$basedir/toolchains/bin"
+		exec "$basedir/toolchains/bin/sh" "$0" "$@"
+	fi
 
-if [ ! -x "$basedir/toolchains/bin/cget" ]; then
-	( cd "$basedir/toolchains" && "./etc/install-$(uname -s)-$(uname -m).sh"; )
-fi
+	export LANG=C
+	export LC_ALL=C
+	# make python-based code generators deterministic (e.g. open62541)
+	export PYTHONHASHSEED=0
+	export CGET_CACHE_DIR="$basedir/toolchains/download-cache"
+	export CLICOLOR_FORCE=1
+}
 
-if [ "$PATH" != "$basedir/toolchains/bin" ]; then
-	PATH="$basedir/toolchains/bin"
-	exec "$basedir/toolchains/bin/sh" "$0" "$@"
-fi
-
-export LANG=C
-export LC_ALL=C
-# make python-based code generators deterministic (e.g. open62541)
-export PYTHONHASHSEED=0
-export CGET_CACHE_DIR="$basedir/toolchains/download-cache"
-export CLICOLOR_FORCE=1
+find_basedir
+find_subdirs
+cleanup_execution_environment "$@"
 
 ################################################################################
 ### helper functions
@@ -66,6 +71,7 @@ update_forte_build_workaround() {
     echo "$srcdir/ -X build.cmake" > "$extradepdir/forte/package.txt"
 }
 
+compile_commands=
 create_compile_commands_json() {
 	# skip this on anything but the native "debug" build configuration
 	[ "$1" = "debug" -o "$compile_commands" = "1" ] || return 0
@@ -159,7 +165,6 @@ prepare_recipe_dir() {
 		done
 	done
 }
-
 
 ################################################################################
 ### configuration parsing
@@ -302,33 +307,29 @@ build_one() {
 		set -- "$@" "-D$name:$type=$val"
 	done
 
-	( $trace
 	"$basedir/toolchains/bin/cget" \
 		-p "$prefix" install $verbose \
 		$deps \
 		"$@" \
 		-DCMAKE_INSTALL_PREFIX:STRING="$prefix" \
-		-G "$generator"; ) \
+		-G "$generator" \
 		|| die "Dependencies of configuration '$config' failed"
 	if [ -f "$prefix/forte/build/CMakeCache.txt" -a "$basedir/dependencies/recipes/forte/build.cmake" -nt "$prefix/forte/build/CMakeCache.txt" ]; then
 		rm -rf "$prefix/forte"
 	fi
-	( $trace
-		set +e
-		"$basedir/toolchains/bin/cget" \
-			-p "$prefix" build -T install $verbose \
-			-B "$prefix" \
-			-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-			"$@" forte \
-			-G "$generator"
-		echo "Exit Status: $?"
-	) 2>&1 | tee "$prefix.log"
-	[ ! -f "$srcdir/__cget_sh_CMakeLists.txt" ] || mv "$srcdir/__cget_sh_CMakeLists.txt" "$srcdir/CMakeLists.txt"
+
+	"$basedir/toolchains/bin/cget" \
+		-p "$prefix" build -T install $verbose \
+		-B "$prefix" \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		"$@" forte \
+		-G "$generator" \
+		|| {
+			[ -z "$keep_going" ] || return 0
+			die "Build of configuration '$config' failed"
+		}
+
 	"$basedir/toolchains/etc/package-dynamic.sh" "$target" "$prefix/output/bin/forte" || true
-
-	[ -z "$keep_going" ] || return 0
-	[ "$(tail -n 1 "$prefix.log")" = "Exit Status: 0" ] || die "Build of configuration '$config' failed"
-
 	create_compile_commands_json "$config"
 
 	if [ -n "$deploy" ]; then
@@ -343,18 +344,17 @@ build_one() {
 ### main script
 ################################################################################
 
-trace=
-verbose=
+verbose=--log
 generator=Ninja
 while [ -n "$1" ]; do
 	case "$1" in
-		-v) verbose="-v";
+		-v) verbose="-v";;
+		-d)
 			generator="Unix Makefiles";
 			export MAKEFLAGS=-j1;
 			export NINJAFLAGS=-j1;
 			export CMAKE_BUILD_PARALLEL_LEVEL=1;
 			set_define CMAKE_VERBOSE_MAKEFILE BOOL ON;;
-		-d) export trace="set -x";;
 		-c) compile_commands=1;;
 		-k) keep_going=1;;
 		-h) echo "Usage: $0 [-v] [-c] [-k] [config-name ...]" >&2; exit 0;;

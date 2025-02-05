@@ -32,12 +32,12 @@ Installation
 ============
 
 The easiest way to install 4diac-fbe is through an official release: Check out
-the `release` branch of `4diac-fbe` and copy either `scripts/compile.sh` or
-`scripts/compile.cmd` to the toplevel directory.  That's all.
+the `release` branch of `4diac-fbe` including all subrepositories, e.g. using
+the `--recursive` flag of the git command line client. That's all.
 
 IMPORTANT NOTE for Windows users: By default, Windows has a rather short file
 name length limit.  It is therefore recommended to use an installation
-directory close to the root of your drive, like ``D:\4diac-fbe``. Also, avoid
+directory close to the root of your drive, like `D:\4diac-fbe`. Also, avoid
 a path containing whitespace.
 
 The first time you run the compile script, the build environment will be set
@@ -52,7 +52,7 @@ Updating
 
 If you run this from the git `release` branch, simply update the repo and all
 subrepositories in place. In case there were significant toolchain updates,
-run `toolchains/etc/bootstrap/clean.sh` to force downloading a current
+run `toolchains/etc/bootstrap/clean.sh` to trigger downloading a new
 toolchain release.
 
 
@@ -63,48 +63,64 @@ Usage
 Compiling a runtime executable
 ------------------------------
 
-Builds are executed by ``./compile.sh``.  For convenience, a Windows
-``compile.cmd`` allows single-doubleclick-builds with no console interaction
-on Windows. If run in this way, all configurations are built (see below). The
-final binaries will be created at ``build/<config-name>/output/bin``.
+Builds are executed by `./compile.cmd`.  This is both, a Linux/Mac shell
+script and a valid Windows batch file.  It allows single-doubleclick-builds
+with no console interaction on Windows. If run in this way, all configurations
+are built (see below). The final binaries will be created at
+`build/<config-name>/output/bin`.
 
-In order to start over (i.e., to rebuild everything from scratch), delete
-subdirectory ``build``. This should never be needed for simple code or
-configuration changes. However, if you change library recipes in subdirectory
-``dependencies``, then such a clean restart may be neccessary.
+By default, all build output is recorded in one log file per package and the
+console just displays a concise progress report. Log files are located in
+`build/<config-name>/forte.log` and `build/<config-name>/cget/build/*.log`.
+If you want a detailed output of all activities, pass `-v` to `compile.cmd`
+and you will get verbose build output instead of log files.
+
+In order to start over, `./clean.cmd` allows quick resetting of your build
+output. If run without arguments, it will trigger rebuilding all 4diac FORTE
+binaries but not their dependencies. Use the `--all` flag to also rebuild
+dependencies. Pass a single config name to just rebuild that config. Note that
+if a rebuild fails without `clean.cmd` but succeeds with it, that is considered
+a bug: there should never be a reason to clean build output, consider reporting
+this as a bug.
+
+In order to override which 4diac FORTE version is built, you can just clone the
+git branch/commit of your choice into subdirectory `4diac-forte`. This will
+override the shipped version. Some provision is made to be compatible with
+various versions (release, freeze, develop), but there may be compile errors
+with unusual versions. Feel free to ask for help in that case.
 
 You can also build executables outside the `4diac-fbe` directory.  In your
 desired target directory, create a subdirectory `configurations` just like
-the one in `4diac-fbe` and call `compile.sh`/`compile.cmd` with your target
-directory as the current working directory. This will create the `build`
-directory in this location instead of the `4diac-fbe` directory, allowing you
-to reuse a single 4diac-fbe installation for multiple projects. If you want
-to use a custom 4diac-forte source tree or custom dependencies, you can add
-`4diac-forte` and `dependencies` subdirectories as needed, which will
-override the default code shipped with 4diac-fbe.
+the one in `4diac-fbe` and call `compile.cmd` with your target directory as the
+current working directory. This will create the `build` directory in this
+location instead of the `4diac-fbe` directory, allowing you to reuse a single
+4diac-fbe installation for multiple projects. If you want to use a custom
+4diac-forte source tree or custom dependencies, you can add `4diac-forte` and
+`dependencies` subdirectories as needed, which will override the default code
+shipped with 4diac-fbe.
 
 
 Configuration management
 ------------------------
 
 By default, the build script will build 4diac FORTE for all configurations present in
-subdirectory ``configurations``.  Every time the script is called, it will
+subdirectory `configurations`.  Every time the script is called, it will
 update all builds with the exact same configuration.  The resulting executables
-are located in subdirectory ``build/<config-name>/output``.
+are located in subdirectory `build/<config-name>/output`.
 
 You may customize builds by copying and modifying the default configuration file
-``configurations/native-toolchain.txt``. By default, all configurations present
+`configurations/native-toolchain.txt`. By default, all configurations present
 in that directory will be built. To temporarily disable a configuration, rename
-it so that it does not end in ``.txt`` anymore.
+it so that it does not end in `.txt` anymore.
 
 If you want to build just a single configuration, specify its base name on the
-command line.  Example: ``./compile.sh native-toolchain`` only builds the
-default version configured through ``configurations/native-toolchain.txt``.
+command line.  Example: `./compile.cmd native-toolchain` only builds the
+default version configured through `configurations/native-toolchain.txt`.
 
 In order to manage complex sets of configurations, you can organize them in
 subdirectories. Configurations in a subdirectory will not be built by default.
 To process an entire subdirectory instead of the default set of configurations,
-specify its name on the command line, e.g. ``./compile.sh configurations/test``.
+specify its name on the command line, e.g. `./compile.cmd configurations/test`.
 Note that configuration names must still be unique, even when separated into
 different directories (i.e. no two files with the same name in different
 configuration directories).
@@ -119,7 +135,7 @@ comments. A useful almost-full-featured configuration is provided in
 Cross Compilation
 -----------------
 
-You can select a cross-compiled build by setting ``ARCH`` in the build
+You can select a cross-compiled build by setting `ARCH` in the build
 configuration file (see above).  If cross-compiling 4diac FORTE for a new
 target architecture for the first time, the build environment will download
 an appropriate cross-compiler from the current `4diac-toolchains` release.
@@ -135,12 +151,12 @@ Function Blocks, the runtime has to be re-compiled to include code generated by
 4DIAC-IDE.  This is the original reason this build system was created.
 
 To add your own blocks, place the code generated by 4DIAC-IDE into
-``Modules/EclipseGeneratedFBs/generated/``.  During the next build, it will be
-moved into ``Modules/EclipseGeneratedFBs/edited/``, where you can edit it as you
-like.  Do not edit it while it is in ``.../generated/``; run a build first, then
+`Modules/EclipseGeneratedFBs/generated/`.  During the next build, it will be
+moved into `Modules/EclipseGeneratedFBs/edited/`, where you can edit it as you
+like.  Do not edit it while it is in `.../generated/`; run a build first, then
 edit, then rebuild!
 
-When you export code into ``.../generated/`` again, the build system will make
+When you export code into `.../generated/` again, the build system will make
 sure that your changes will not be overwritten.  Most of the time, it will keep
 them perfectly intact; if it can't do so automatically, the build will abort and
 tell you how to resolve the situation manually.
@@ -150,20 +166,20 @@ Adding custom 4diac FORTE modules
 ---------------------------
 
 If you write custom 4diac FORTE modules, put them into their own subdirectories
-below ``modules``. You can configure a different external modules directory
+below `modules`. You can configure a different external modules directory
 by using the `FORTE_EXTERNAL_MODULES_DIRECTORY` configuration option.
 
 You can place the type definition files for 4diac IDE into subdirectory
-``types``. The idea is that you copy the contents of the ``types`` directory
+`types`. The idea is that you copy the contents of the `types` directory
 into new 4diac IDE projects to get access to all custom modules.
 
 The git repository has been set up to ignore all modules by default. If you
 want to add modules to a local branch or fork, put the following `.gitignore`
 file into your module directory:
 
-```
+``
 !*
-```
+``
 
 That way you can selectively manage modules in subrepos or local branches and
 leave other modules unmanaged as needed.
@@ -172,24 +188,24 @@ leave other modules unmanaged as needed.
 Adding external code
 --------------------
 
-If your code has additional dependencies, put them as ``cget`` recipes into
-subdirectory ``dependencies/recipes``, then add the package name to the ``DEPS``
+If your code has additional dependencies, put them as `cget` recipes into
+subdirectory `dependencies/recipes`, then add the package name to the `DEPS`
 setting in the build configuration file (see above). In the configuration file,
 you can also add any additional CMake settings required for your code, for
-example additional compiler flags in ``EXTRA_COMPILER_FLAGS`` or additional
-dependency packages in ``DEPS``. See ``configurations/native-toolchain.txt``
+example additional compiler flags in `EXTRA_COMPILER_FLAGS` or additional
+dependency packages in `DEPS`. See `configurations/native-toolchain.txt`
 for some common examples.
 
-For well-known external libraries, you might find ``cget`` recipes at
+For well-known external libraries, you might find `cget` recipes at
 https://github.com/pfultz2/cget-recipes/tree/master/recipes/ -- but be aware
 that some of these will need manual adaptions for static linking.
 
 If you have to use pre-built external libraries (e.g. due to proprietary code or
 huge external packages that take a lot of effort to build), you will need a
 toolchain based on the GNU C library instead of the default MUSL-based
-toolchains. These contain ``-gnu`` in their name and support dynamic linking,
+toolchains. These contain `-gnu` in their name and support dynamic linking,
 but the drawback is more complicated distribution. The build system tries to
-create a self-contained ``bin`` directory containing all dependency files, but
+create a self-contained `bin` directory containing all dependency files, but
 the result still might not be sufficient to run on a different system. This
 depends on many details, you have been warned. Avoid it if you can.
 
@@ -198,9 +214,8 @@ Debugging Compile Problems
 --------------------------
 
 If you have unexplainable compiler errors or missing include files or things
-like that, you can use the option ``./compile.sh -v ...`` to force the build to
+like that, you can use the option `./compile.cmd -d ...` to force the build to
 be single-threaded and output the individual compiler command lines. This helps
-you to get more readable error outpu and check that all appropriate search paths
-and compiler options have been set. NOTE: you must delete the build directory
-``build/<config-name>/`` every time you switch between verbose builds and normal
-builds!
+you to get more readable error output and check that all appropriate search paths
+and compiler options have been set. NOTE: you must `clean.cmd` the build directory
+every time you switch between verbose builds and normal builds.

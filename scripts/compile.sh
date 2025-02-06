@@ -65,6 +65,11 @@ replace() { # replace varname "foo" "bar"
 	eval "while [ -z \"\${$1##*\"\$2\"*}\" ]; do $1=\"\${$1%%\"\$2\"*}\"\$3\"\${$1#*\"\$2\"}\"; done";
 }
 
+if [ "$(uname -s)" = "Windows_NT" ]; then
+	# don't even try on Windows
+	ln() { false; }
+fi
+
 update_forte_build_workaround() {
     mkdir -p "$extradepdir/forte/"
     [ -f "$extradepdir/forte/build.cmake" ] || cp "$depdir/forte/build.cmake" "$extradepdir/forte/"

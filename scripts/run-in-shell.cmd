@@ -21,11 +21,12 @@ setlocal
 set basedir=%~dp0\..
 
 if not exist %basedir%\forte\CMakeLists.txt goto incomplete
-if not exist %basedir%\toolchains\etc\install-Windows.cmd goto incomplete
+if not exist %basedir%\toolchains\etc\install.cmd goto incomplete
 
 if exist %basedir%\toolchains\bin\cget goto noinstall
 	pushd %basedir%\toolchains
-	call etc\install-Windows.cmd
+	call etc\install.cmd
+	if errorlevel 1 exit /b
 	popd
 
 :noinstall
@@ -45,7 +46,7 @@ set -e
 basedir="$(cd "$(dirname "$0")/.."; pwd)"
 [ -d "$basedir/toolchains" ] || exec "$(readlink -f "$0")" "$@"
 
-for i in forte/CMakeLists.txt toolchains/etc/install-Windows.cmd; do
+for i in forte/CMakeLists.txt toolchains/etc/install.sh; do
 	if [ ! -f "$basedir/$i" ]; then
 		echo "ERROR: Your 4diac FBE directory seems to be incomplete. Please use a release download" >&2
 		echo "or make sure you use the '--recursive' flag when cloning the git repository." >&2
@@ -54,7 +55,7 @@ for i in forte/CMakeLists.txt toolchains/etc/install-Windows.cmd; do
 done
 
 if [ ! -x "$basedir/toolchains/bin/cget" ]; then
-	( cd "$basedir/toolchains" && "./etc/install-$(uname -s)-$(uname -m).sh"; )
+	( cd "$basedir/toolchains" && "./etc/install.sh"; )
 fi
 
 exec "$basedir/toolchains/bin/sh" "$@"

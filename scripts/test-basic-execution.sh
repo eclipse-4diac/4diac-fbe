@@ -18,7 +18,7 @@ scripts="$(dirname "$0")"
 die() { echo "$*" >&2; exit 1; }
 run() {
 	case "$1" in
-		*.exe) wine "$@";;
+		*.exe) WINEPREFIX="$(cd "$(dirname "$1")"/..; pwd)/.wine" wine "$@";;
 		*) "$@";;
 	esac
 }

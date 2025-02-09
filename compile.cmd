@@ -19,7 +19,15 @@ cls
 
 setlocal
 set scripts=%~dp0\scripts
+if not exist %scripts%\run-in-shell.cmd goto incomplete
+
 %scripts%\run-in-shell.cmd %scripts%\%~n0.sh %*
+exit /b
+:incomplete
+echo ERROR: Your FBE download is incomplete or you are trying to run this directly
+echo        from the ZIP file. Extract the ZIP file to a suitable folder first.
+echo        See file README.md for details.
+pause
 exit /b
 __________________________
 # Shell Script

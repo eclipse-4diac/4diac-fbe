@@ -22,6 +22,9 @@ set basedir=%~dp0\..
 
 if not exist %basedir%\forte\CMakeLists.txt goto incomplete
 if not exist %basedir%\toolchains\etc\install.cmd goto incomplete
+if exist %CGET_DOWNLOADS_DIR% goto dldirisset
+if exist %basedir%\..\downloads set CGET_DOWNLOADS_DIR=%basedir%\..\downloads
+:dldirisset
 
 if exist %basedir%\toolchains\bin\cget goto noinstall
 	pushd %basedir%\toolchains
@@ -53,6 +56,8 @@ for i in forte/CMakeLists.txt toolchains/etc/install.sh; do
 		exit 1
 	fi
 done
+
+! [ -z "$CGET_DOWNLOADS_DIR" -a -d "$basedir/../downloads" ] || export CGET_DOWNLOADS_DIR="$basedir/../downloads"
 
 if [ ! -x "$basedir/toolchains/bin/cget" ]; then
 	( cd "$basedir/toolchains" && "./etc/install.sh"; )

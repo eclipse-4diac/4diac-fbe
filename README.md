@@ -155,6 +155,14 @@ Targets for the pre-built cross-compilers include:
 - riscv64-linux-musl
 - riscv32-unknown-elf
 
+Cross-compilers are based on a triple configuration. Take **x86_64-linux-gnu** as an example:
+
+- The first part (**x86_64**) represents the CPU architecture.  
+- The second part (**linux**) specifies the operating system—common values include **linux**, **w64** (for Windows), or **none** (for bare-metal targets).  
+- The third part (**gnu**) indicates the C standard library and ABI, such as **gnu**, **musl**, or **eabi** (for bare-metal), and may also include details like hard or soft-float support.  
+
+For example, a **Raspberry Pi 3** running Linux might use **arm-linux-gnueabihf** or **arm-linux-musleabi**. If running without an operating system, the appropriate cross-compiler would be **arm-none-eabi**.
+
 
 Adding generated function blocks
 --------------------------------

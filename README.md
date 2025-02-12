@@ -139,8 +139,21 @@ You can select a cross-compiled build by setting `ARCH` in the build
 configuration file (see above).  If cross-compiling 4diac FORTE for a new
 target architecture for the first time, the build environment will download
 an appropriate cross-compiler from the current `4diac-toolchains` release.
-See `toolchains/etc/crosscompilers.sha256` for a list of pre-built
-crosscompilers for the current release.
+Targets for the pre-built crosscompilers include:
+
+- x86_64-linux-gnu
+- x86_64-linux-musl
+- x86_64-w64-mingw32
+- i686-linux-musl
+- i686-w64-mingw32
+- arm-linux-gnueabihf
+- arm-linux-musleabihf
+- arm-linux-musleabi
+- arm-none-eabi
+- aarch64-linux-musl
+- aarch64-linux-gnu
+- riscv64-linux-musl
+- riscv32-unknown-elf
 
 
 Adding generated function blocks

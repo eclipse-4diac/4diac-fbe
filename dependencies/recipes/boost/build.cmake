@@ -172,15 +172,10 @@ macro(preamble PREFIX)
         set(${PREFIX}_VARIANT "release")
     endif()
 
+	string(REPLACE ";" "\\\\\\;" ESCAPEDPATH "$ENV{PATH}")
     set(${PREFIX}_BASE_ENV_COMMAND ${CMAKE_COMMAND} -E env
-        "PATH=${${PREFIX}_SYSTEM_PATH}${PATH_SEP}$ENV{PATH}"
-        "PKG_CONFIG_PATH=${${PREFIX}_PKG_CONFIG_PATH}"
+        "PATH=${ESCAPEDPATH}"
     )
-
-    # TODO: Set also PKG_CONFIG_SYSROOT_DIR
-    if(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE STREQUAL "ONLY")
-        list(APPEND ${PREFIX}_BASE_ENV_COMMAND "PKG_CONFIG_LIBDIR=${${PREFIX}_PKG_CONFIG_PATH}")
-    endif()
 
     set(${PREFIX}_ENV_COMMAND ${${PREFIX}_BASE_ENV_COMMAND}
         "CC=${CMAKE_C_COMPILER}"
@@ -274,7 +269,7 @@ find_program(B2_EXE b2)
 if(NOT ${B2_EXE})
     if(CMAKE_HOST_WIN32)
         add_custom_target(bootstrap
-            COMMAND cmd /c ${CMAKE_CURRENT_SOURCE_DIR}/tools/build/bootstrap.bat
+            COMMAND ${CMAKE_COMMAND} -E env CXX="${CMAKE_CXX_COMPILER}" cmd /c ${CMAKE_CURRENT_SOURCE_DIR}/tools/build/bootstrap.bat ${BOOST_TOOLCHAIN}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools/build/
         )
         set(B2_EXE "${CMAKE_CURRENT_SOURCE_DIR}/tools/build/b2.exe")
@@ -312,10 +307,7 @@ if(NOT "${B2_LINK_FLAGS}" STREQUAL "")
     set(B2_LINK_FLAGS_ARG "linkflags=${B2_LINK_FLAGS}")
 endif()
 
-set(B2_VERBOSE_FLAG)
-if(CMAKE_VERBOSE_MAKEFILE)
-    set(B2_VERBOSE_FLAG -d+2)
-endif()
+set(B2_VERBOSE_FLAG -d2)
 
 set(B2_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/build)
 

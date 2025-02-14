@@ -153,7 +153,7 @@ The most popular targets are:
 
 - **Windows:** `x86_64-w64-mingw32`
 - **Linux:** `x86_64-linux-musl`,
-- **macOS:** `aarch64-apple-darwin`  
+- **macOS:** `aarch64-apple-darwin20.2`  
 - **Raspberry Pi:** `arm-linux-musleabihf`  
 
 The full list of supported targets varies from release to release and between host platforms. See file `toolchains/etc/crosscompilers.sha256` to check which targets your release supports

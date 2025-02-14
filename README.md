@@ -139,21 +139,8 @@ You can select a cross-compiled build by setting `ARCH` in the build
 configuration file (see above).  If cross-compiling 4diac FORTE for a new
 target architecture for the first time, the build environment will download
 an appropriate cross-compiler from the current `4diac-toolchains` release.
-Targets for the pre-built cross-compilers include:
-
-- x86_64-linux-gnu
-- x86_64-linux-musl
-- x86_64-w64-mingw32
-- i686-linux-musl
-- i686-w64-mingw32
-- arm-linux-gnueabihf
-- arm-linux-musleabihf
-- arm-linux-musleabi
-- arm-none-eabi
-- aarch64-linux-musl
-- aarch64-linux-gnu
-- riscv64-linux-musl
-- riscv32-unknown-elf
+See `toolchains/etc/crosscompilers.sha256` for a list of pre-built
+crosscompilers for the current release.
 
 Cross-compilers are based on a triple configuration. Take **x86_64-linux-gnu** as an example:
 
@@ -162,6 +149,17 @@ Cross-compilers are based on a triple configuration. Take **x86_64-linux-gnu** a
 - The third part (**gnu**) indicates the C standard library and ABI, such as **gnu**, **musl**, or **eabi** (for bare-metal), and may also include details like hard or soft-float support.  
 
 For example, a **Raspberry Pi 3** running Linux might use **arm-linux-gnueabihf** or **arm-linux-musleabi**. If running without an operating system, the appropriate cross-compiler would be **arm-none-eabi**.
+
+
+Common but not limited targets are:
+
+- **Windows:** `x86_64-w64-mingw32`
+- **Linux:** `x86_64-linux-gnu`, `aarch64-linux-gnu`
+- **macOS:** `aarch64-apple-darwin`  
+- **Raspberry Pi:** `arm-linux-gnueabihf`, `arm-linux-musleabihf`  
+- **Bare-metal (no OS):** `arm-none-eabi`, `riscv32-unknown-elf`
+
+
 
 
 Adding generated function blocks

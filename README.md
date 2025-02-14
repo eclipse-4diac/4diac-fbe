@@ -142,6 +142,25 @@ an appropriate cross-compiler from the current `4diac-toolchains` release.
 See `toolchains/etc/crosscompilers.sha256` for a list of pre-built
 crosscompilers for the current release.
 
+Cross-compilers are based on a triple configuration. Take
+**x86_64-linux-musl** as an example:
+
+- The first part (**x86_64**) represents the CPU architecture.  
+- The second part (**linux**) specifies the operating system.  
+- The third part (**musl**) specifies the calling convention, which might
+  also involve hardware specific details.
+
+The most popular targets are:
+
+- **Windows:** `x86_64-w64-mingw32`
+- **Linux:** `x86_64-linux-musl`
+- **macOS:** `aarch64-apple-darwin20.2`  
+- **Raspberry Pi:** `arm-linux-musleabihf`  
+
+The full list of supported targets varies from release to release and between
+host platforms. See file `toolchains/etc/crosscompilers.sha256` to check which
+targets your release supports
+
 
 Adding generated function blocks
 --------------------------------

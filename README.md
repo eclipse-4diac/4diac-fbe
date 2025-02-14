@@ -142,25 +142,21 @@ an appropriate cross-compiler from the current `4diac-toolchains` release.
 See `toolchains/etc/crosscompilers.sha256` for a list of pre-built
 crosscompilers for the current release.
 
-Cross-compilers are based on a triple configuration. Take **x86_64-linux-gnu** as an example:
+Cross-compilers are based on a triple configuration. Take **x86_64-linux-musl** as an example:
+
 
 - The first part (**x86_64**) represents the CPU architecture.  
-- The second part (**linux**) specifies the operating system—common values include **linux**, **w64** (for Windows), or **none** (for bare-metal targets).  
-- The third part (**gnu**) indicates the C standard library and ABI, such as **gnu**, **musl**, or **eabi** (for bare-metal), and may also include details like hard or soft-float support.  
+- The second part (**linux**) specifies the operating system.  
+- The third part (**musl**) specifies the calling convention, which might involve also hardware specific details.
 
-For example, a **Raspberry Pi 3** running Linux might use **arm-linux-gnueabihf** or **arm-linux-musleabi**. If running without an operating system, the appropriate cross-compiler would be **arm-none-eabi**.
-
-
-Common but not limited targets are:
+The most popular targets are:
 
 - **Windows:** `x86_64-w64-mingw32`
-- **Linux:** `x86_64-linux-gnu`, `aarch64-linux-gnu`
+- **Linux:** `x86_64-linux-musl`,
 - **macOS:** `aarch64-apple-darwin`  
-- **Raspberry Pi:** `arm-linux-gnueabihf`, `arm-linux-musleabihf`  
-- **Bare-metal (no OS):** `arm-none-eabi`, `riscv32-unknown-elf`
+- **Raspberry Pi:** `arm-linux-musleabihf`  
 
-
-
+The full list of supported targets varies from release to release and between host platforms. See file `toolchains/etc/crosscompilers.sha256` to check which targets your release supports
 
 Adding generated function blocks
 --------------------------------

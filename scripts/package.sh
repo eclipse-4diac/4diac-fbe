@@ -26,7 +26,7 @@ cd ..
 	"$dirname"/forte/ \
 	"$dirname"/modules/ \
 	"$dirname"/types/ \
-	"$dirname"/toolchains/etc/install.* \
+	"$dirname"/toolchains/etc/ \
 	"$dirname"/configurations/native-toolchain.txt \
 	"$dirname"/configurations/debug.txt \
 	"$dirname"/configurations/inc \

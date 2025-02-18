@@ -1,7 +1,7 @@
 4diac FORTE Build System (4diac-fbe)
 ==========================================================
 
-[![Build Status](https://ci.eclipse.org/4diac/job/FORTE_DEVELOP_via_FBE/lastBuild/badge/icon?style=flat-square&subject=FORTE%20on%20Release%20Branch)](https://ci.eclipse.org/4diac/job/FORTE_DEVELOP_via_FBE/lastBuild/)
+[![Build Status](https://ci.eclipse.org/4diac/job/FORTE_DEVELOP_via_FBE/lastBuild/badge/icon?style=flat-square&subject=FORTE%20on%20Develop%20Branch)](https://ci.eclipse.org/4diac/job/FORTE_DEVELOP_via_FBE/lastBuild/)
 
 This repository contains a build environment for building 4diac FORTE, the
 run-time engine of the 4diac IEC 61499 implementation.  Part of its workflow

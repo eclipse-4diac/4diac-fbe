@@ -118,6 +118,12 @@ if (FORTE_USE_LUATYPES STREQUAL "LuaJIT")
 	set(LUAJIT_LIBRARY "luajit" CACHE STRING "")
 endif()
 
+if (FORTE_COM_XqueryClient)
+  set(OPENSSL_INCLUDE_DIR "${CGET_PREFIX}/include/ssl" CACHE STRING "")
+  set(OPENSSL_LIBRARY_DIR "${CGET_PREFIX}/lib" CACHE STRING "")
+  set(FORTE_BASEX_SRC_DIR "${CGET_PREFIX}/src/basex-c" CACHE STRING "")
+endif()
+
 #############################################################################
 # Compatibility options / workarounds
 #

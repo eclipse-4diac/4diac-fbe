@@ -1,0 +1,26 @@
+// ********************************************************************************
+//  Copyright (c) 2025 Monika Wenger
+// 
+//  This program and the accompanying materials are made available under the
+//  terms of the Eclipse Public License 2.0 which is available at
+//  http://www.eclipse.org/legal/epl-2.0.
+// 
+//  SPDX-License-Identifier: EPL-2.0
+//  
+//  Contributors:
+//     Monika Wenger - initial implementation
+//  *******************************************************************************/
+
+ARCH=native-toolchain
+
+DEPS=libressl
+DEPS=basex@10.4
+
+COM=ETH,FBDK,LOCAL,XqueryClient
+
+MODULE=IEC61131,UTILS_ADDON,CUSTOM_FBS
+
+CMAKE_BUILD_TYPE=Debug
+FORTE_LOGLEVEL=LOGDEBUG
+
+FORTE_EXTERNAL_MODULES_DIRECTORY=${BASEDIR}/modules

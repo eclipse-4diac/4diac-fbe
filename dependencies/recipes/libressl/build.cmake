@@ -61,3 +61,15 @@ include(${CGET_CMAKE_ORIGINAL_SOURCE_FILE})
 set_target_properties(tls PROPERTIES ARCHIVE_OUTPUT_NAME tls)
 set_target_properties(ssl PROPERTIES ARCHIVE_OUTPUT_NAME ssl)
 set_target_properties(crypto PROPERTIES ARCHIVE_OUTPUT_NAME crypto)
+
+install(DIRECTORY include/
+    DESTINATION include/ssl
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(FILES
+    ${CMAKE_BINARY_DIR}/tls/libtls.a
+    ${CMAKE_BINARY_DIR}/ssl/libssl.a
+    ${CMAKE_BINARY_DIR}/crypto/libcrypto.a
+    DESTINATION lib
+)

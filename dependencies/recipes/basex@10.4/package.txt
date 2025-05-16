@@ -1,0 +1,2 @@
+https://github.com/BaseXdb/basex/archive/refs/tags/10.4.tar.gz -H sha256:8dd39dedf8fdd66017e0dfd79838ab01894ca6275c2b4c431debbb3f802aa074 -X build.cmake
+libressl

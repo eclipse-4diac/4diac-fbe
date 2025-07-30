@@ -77,13 +77,13 @@ foreach(src IN LISTS edit_orig)
 endforeach()
 
 # now work with the updated files
-set(FORTE_MODULE_CUSTOM_FBS ON CACHE BOOL "")
-forte_add_module(CUSTOM_FBS ON "Custom FBs")
+forte_register_module(CUSTOM_FBS ON "Custom FBs")
 
 file(GLOB CUSTOM_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} edited/*.cpp)
+add_library(custom_fbs OBJECT ${CUSTOM_SRCS})
+target_link_libraries(forte PRIVATE custom_fbs)
 
 foreach(CUSTOM_SRC IN LISTS CUSTOM_SRCS)
   string(REGEX REPLACE "\\.cpp" "" CUSTOM_SRC "${CUSTOM_SRC}")
   message(STATUS ">>> Adding custom FB: ${CUSTOM_SRC}")
-  forte_add_sourcefile_hcpp(${CUSTOM_SRC})
 endforeach()

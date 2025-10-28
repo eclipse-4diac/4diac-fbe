@@ -262,12 +262,18 @@ $val"
 			IO)
 				if [ -n "$val" ]; then
 					set_define "FORTE_IO" "BOOL" "ON"
-					set_define "FORTE_IO_$val" "BOOL" "ON"
-					forte_io="_$val"
+					if [ "${val#-}" != "$val" ]; then
+						val="${val#-}"
+						set_define "FORTE_MODULE_${val}" "BOOL" "OFF"
+					else
+						set_define "FORTE_MODULE_${val}" "BOOL" "ON"
+					fi
+					forte_io="$forte_io _$val"
 				else
-					# FIXME: once there are multiple IO modules, revise this logic
 					set_define "FORTE_IO" "BOOL" "OFF"
-					set_define "FORTE_IO$forte_io" "BOOL" "OFF"
+					for io in $forte_io; do
+						set_define "FORTE_MODULE_$io" "BOOL" "OFF"
+					done
 					forte_io=""
 				fi;;
 
@@ -361,6 +367,7 @@ build_one() {
             echo "### [$config] Running DEPLOY command: $deploy"
 			exec "$SHELL" -c "$deploy"
 		)
+		echo "### [$config] Deploy command exited successfully."
 	fi
 }
 

@@ -1,5 +1,5 @@
 #********************************************************************************
-# Copyright (c) 2018, 2024 OFFIS e.V.
+# Copyright (c) 2018, 2023 OFFIS e.V.
 #
 # This program and the accompanying materials are made available under the
 # terms of the Eclipse Public License 2.0 which is available at
@@ -10,10 +10,9 @@
 # Contributors:
 #    Jörg Walter - initial implementation
 # *******************************************************************************/
-#
 
-PROJECT(libressl C)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
+project(libressl C)
 
 include(toolchain-utils)
 
@@ -27,7 +26,7 @@ if (WIN32)
   file(REMOVE include/compat/pthread.h)
   file(COPY ${CGET_RECIPE_DIR}/inet_pton.h DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/include/compat/)
   file(COPY ${CGET_RECIPE_DIR}/getentropy_win.c DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/crypto/compat/)
-  add_compile_options(-include inet_pton.h -Wno-unused-function)
+  add_compile_options(-include ${CMAKE_CURRENT_SOURCE_DIR}/include/compat/inet_pton.h -Wno-unused-function)
 endif()
 
 option(NO_APPS "only build library")

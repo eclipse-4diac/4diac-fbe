@@ -1,17 +1,21 @@
 /********************************************************************************
-# Copyright (c) 2018, 2024 OFFIS e.V.
+# Copyright (c) 2018, 2023 OFFIS e.V.
 #
 # This program and the accompanying materials are made available under the
 # terms of the Eclipse Public License 2.0 which is available at
 # http://www.eclipse.org/legal/epl-2.0.
 #
-# SPDX-License-Identifier: EPL-2.0
+# SPDX-License-Identifier: EPL-2.0 CC-BY-SA-4.0
 # 
 # Contributors:
-#    Jörg Walter - initial implementation
+#    Petar Korponaić - initial implementation on https://stackoverflow.com/a/20817001
+#    Jörg Walter - adaptation
 # *******************************************************************************/
 
-// from https://stackoverflow.com/a/20817001
+// Adapted from code licensed under CC BY-SA. rev 2023.5.31.43466
+// Author: Petar Korponaić
+// Source: https://stackoverflow.com/a/20817001
+
 #include <winsock2.h>
 #include <windows.h>
 #include <ws2tcpip.h>
@@ -56,7 +60,7 @@ static const char *inet_ntop(int af, const void *src, char *dst, socklen_t size)
     default:
       return NULL;
   }
-  /* cannot direclty use &size because of strict aliasing rules */
+  /* cannot directly use &size because of strict aliasing rules */
   return (WSAAddressToString((struct sockaddr *)&ss, sizeof(ss), NULL, dst, &s) == 0)?
           dst : NULL;
 }

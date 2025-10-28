@@ -77,13 +77,7 @@ create_compile_commands_json() {
 	# skip this on anything but the native "debug" build configuration
 	[ "$1" = "debug" -o "$compile_commands" = "1" ] || return 0
 
-	# if you have https://github.com/Sarcasm/compdb installed, header files will be included,
-	# which improves the functionality of many tools that read compile_commands.json
-	if type compdb > /dev/null 2>&1; then
-		compdb -p "$prefix/forte/build" list > "$builddir/../compile_commands.json" 2>/dev/null
-	else
-		cp "$prefix/forte/build/compile_commands.json" "$builddir/.."
-	fi
+	python -I -m compdb -p "$prefix/forte/build" list > "$builddir/../compile_commands.json" 2>/dev/null
 }
 
 detect_legacy_open62541_version() {

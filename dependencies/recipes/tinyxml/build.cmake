@@ -12,7 +12,7 @@
 # *******************************************************************************/
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.10)
 
 install(FILES tinyxml.cpp tinyxml.h tinyxmlerror.cpp tinyxmlparser.cpp
   tinystr.cpp tinystr.h DESTINATION src/tinyxml)

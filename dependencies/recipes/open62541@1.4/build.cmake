@@ -12,8 +12,8 @@
 # *******************************************************************************/
 #
 
+cmake_minimum_required(VERSION 3.10)
 project(open62541 C CXX)
-cmake_minimum_required(VERSION 3.5)
 
 include(toolchain-utils)
 

@@ -12,8 +12,8 @@
 # *******************************************************************************/
 #
 
-PROJECT(libpcap C)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.10)
+project(libpcap C)
 
 include(${CGET_CMAKE_ORIGINAL_SOURCE_FILE})
 

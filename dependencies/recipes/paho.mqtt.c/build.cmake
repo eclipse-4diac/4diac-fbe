@@ -12,7 +12,7 @@
 # *******************************************************************************/
 #
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
 set(PAHO_WITH_SSL ON CACHE BOOL "")
 set(PAHO_BUILD_STATIC ON CACHE BOOL "")

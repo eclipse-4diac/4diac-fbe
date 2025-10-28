@@ -107,6 +107,7 @@ detect_legacy_open62541_version() {
 		version=0.2
 	fi
 
+	rm -rf open62541
 	[ -z "$version" ] || ln -sf "open62541@$version" "open62541" || cp -r "open62541@$version" "open62541"
 }
 

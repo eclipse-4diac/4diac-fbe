@@ -12,8 +12,8 @@
 # *******************************************************************************/
 #
 
-PROJECT(luajit C)
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
+project(luajit C)
 
 set(HOST_CC gcc)
 if (CMAKE_CROSSCOMPILING)

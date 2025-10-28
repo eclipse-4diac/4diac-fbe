@@ -12,8 +12,8 @@
 # *******************************************************************************/
 #
 
-PROJECT(openpowerlink C)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.10)
+project(openpowerlink C)
 
 set(CFG_X86_DEMO_MN_CONSOLE ON CACHE BOOL "" FORCE)
 set(CFG_X86_DEMO_MN_QT OFF CACHE BOOL "" FORCE)
@@ -28,6 +28,7 @@ file(READ EplStack/EplTgtConio.c patching)
 string(REGEX REPLACE "#include <unistd.h>" "#include <unistd.h>\n#include <sys/select.h>" patching "${patching}")
 file(WRITE EplStack/EplTgtConio.c "${patching}")
 
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 include(${CGET_CMAKE_ORIGINAL_SOURCE_FILE})
 
 install(DIRECTORY Include DESTINATION src/openpowerlink)

@@ -12,7 +12,7 @@
 # *******************************************************************************/
 
 cmake_minimum_required(VERSION 3.13)
-PROJECT(zlib LANGUAGES C VERSION 1.2.11)
+project(zlib LANGUAGES C VERSION 1.2.11)
 
 # strip down to bare essentials
 file(READ ${CGET_CMAKE_ORIGINAL_SOURCE_FILE} PATCHING)

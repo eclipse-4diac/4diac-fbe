@@ -12,7 +12,7 @@
 # *******************************************************************************/
 #
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
 if(UNIX)
     # Make sure its executable
@@ -23,7 +23,6 @@ endif()
 # this is boost.cmake from https://github.com/pfultz2/cget
 # with minimal changes (include path, win32 thread API)
 # (boost license)
-cmake_minimum_required (VERSION 2.8)
 
 project(boost)
 enable_language(C CXX)

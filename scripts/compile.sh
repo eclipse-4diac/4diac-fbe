@@ -70,12 +70,6 @@ if [ "$(uname -s)" = "Windows_NT" ]; then
 	ln() { false; }
 fi
 
-update_forte_build_workaround() {
-    mkdir -p "$extradepdir/forte/"
-    [ -f "$extradepdir/forte/build.cmake" ] || cp "$depdir/forte/build.cmake" "$extradepdir/forte/"
-    echo "$srcdir/ -X build.cmake" > "$extradepdir/forte/package.txt"
-}
-
 compile_commands=
 create_compile_commands_json() {
 	# skip this on anything but the native "debug" build configuration
@@ -368,8 +362,6 @@ while [ -n "$1" ]; do
 	esac
 	shift
 done
-
-update_forte_build_workaround
 
 if [ $# = 0 ]; then
 	set -- configurations/*.txt

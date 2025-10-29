@@ -6,7 +6,7 @@
 # http://www.eclipse.org/legal/epl-2.0.
 #
 # SPDX-License-Identifier: EPL-2.0
-# 
+#
 # Contributors:
 #    Jörg Walter - initial implementation
 # *******************************************************************************/
@@ -14,7 +14,11 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+include(toolchain-utils)
+patch(src/Socket.c AI_ADDRCONFIG 0)
+
 set(PAHO_WITH_SSL ON CACHE BOOL "")
+set(PAHO_USE_SELECT ON CACHE BOOL "")
 set(PAHO_BUILD_STATIC ON CACHE BOOL "")
 set(PAHO_BUILD_SHARED OFF CACHE BOOL "")
 

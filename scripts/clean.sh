@@ -44,15 +44,20 @@ case "$1" in
 	exit 1
 	;;
 "")
+	echo "Cleaning to rebuild 4diac FORTE from scratch in all existing builds..."
+	echo "To also rebuild dependencies, run clean.cmd --all"
 	common_clean
 	rm -rf build/*/forte
+	rm -rf build/*/forte.cget_lock
 	rm -rf build/*/cget/build/*/
 	;;
 --all)
+	echo "cleaning to rebuild everything from scratch..."
 	common_clean
 	rm -rf build compile_commands.json
 	;;
 --package)
+	echo "Preparing for packaging..."
 	common_clean
 	rm -rf build
 	rm -rf toolchains/.cache toolchains/download-cache
@@ -61,18 +66,23 @@ case "$1" in
 	rm toolchains/etc/sh*
 	;;
 */forte)
+	echo "Cleaning to rebuild 4diac FORTE from scratch in config '$1'..."
 	common_clean
 	if [ -d "build/$1/../cget" ]; then
-		rm -rf build/"$1"
+		rm -rf build/"$1" build/"$1".cget_lock
 	else
 		echo "$1 seems to be cleaned already"
 	fi
 	;;
 *)
-	if [ -d "build/$1/cget" ]; then
+	if [ -d "$1/cget/../../../build" ]; then
+		echo "Cleaning to rebuild '$1' from scratch..."
+		rm -rf "$1"
+	elif [ -d "build/$1/cget" ]; then
+		echo "Cleaning to rebuild config '$1' from scratch..."
 		rm -rf build/"$1"
 	else
-	        echo "$1 seems to be cleaned already"
+	        echo "$1 is not a build prefix or is cleaned already"
 	fi
 	;;
 esac

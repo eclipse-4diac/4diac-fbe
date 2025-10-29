@@ -7,7 +7,7 @@
 # http://www.eclipse.org/legal/epl-2.0.
 #
 # SPDX-License-Identifier: EPL-2.0
-# 
+#
 # Contributors:
 #    Jörg Walter - initial implementation
 # *******************************************************************************/
@@ -195,8 +195,8 @@ set_define() {
 reset_build_if_changed() {
 	local file="$1"
 	if [ -f "$cachefile" -a "$file" -nt "$cachefile" ]; then
-		echo "Configuration has changed, rebuilding this configuration from scratch."
-		rm -rf "$builddir"
+		echo "Configuration has changed."
+		"$fbemaindir/scripts/clean.sh" "$config/forte"
 	fi
 }
 

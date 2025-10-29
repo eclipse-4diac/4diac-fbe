@@ -22,38 +22,40 @@ exe="$0"
 die() { trap "" EXIT; echo "### ${exe##*/}: $*" >&2; exit 1; }
 trap '[ "$?" = 0 ] || die "Exiting due to error"' EXIT
 
-find_basedir() {
-	basedir="$(cd "$(dirname "$0")"; pwd)"
-	[ -d "$basedir/scripts" ] || basedir="${basedir%/scripts}"
-	[ -d "$basedir/toolchains" ] || exec "$(readlink -f "$exe")" "$@"
+find_fbemaindir() {
+	fbemaindir="$(cd "$(dirname "$0")"; pwd)"
+	[ -d "$fbemaindir/scripts" ] || fbemaindir="${fbemaindir%/scripts}"
+	[ -d "$fbemaindir/toolchains" ] || exec "$(readlink -f "$exe")" "$@"
 }
 
 find_subdirs() {
-	buildroot="$PWD"
-	srcdir="$buildroot/4diac-forte/"
-	[ -d "$srcdir" ] || srcdir="$buildroot/forte/"
-	[ -d "$srcdir" ] || srcdir="$basedir/forte/"
-	builddir="$buildroot/build"
+	fberootdir="$PWD"
+	[ -d "$FBE_FORTE_SOURCE_DIR" ] || FBE_FORTE_SOURCE_DIR="$fberootdir/4diac-forte/"
+	[ -d "$FBE_FORTE_SOURCE_DIR" ] || FBE_FORTE_SOURCE_DIR="$fberootdir/forte/"
+	[ -d "$FBE_FORTE_SOURCE_DIR" ] || FBE_FORTE_SOURCE_DIR="$fbemaindir/forte/"
+	export FBE_FORTE_SOURCE_DIR
 
-	depdir="$basedir/dependencies/recipes"
-	extradepdir="$buildroot/dependencies/recipes/"
+	builddir="$fberootdir/build"
+
+	depdir="$fbemaindir/dependencies/recipes"
+	extradepdir="$fberootdir/dependencies/recipes/"
 }
 
 cleanup_execution_environment() {
-	if [ "$PATH" != "$basedir/toolchains/bin" ]; then
-		PATH="$basedir/toolchains/bin"
-		exec "$basedir/toolchains/bin/sh" "$0" "$@"
+	if [ "$PATH" != "$fbemaindir/toolchains/bin" ]; then
+		PATH="$fbemaindir/toolchains/bin"
+		exec "$fbemaindir/toolchains/bin/sh" "$0" "$@"
 	fi
 
 	export LANG=C
 	export LC_ALL=C
 	# make python-based code generators deterministic (e.g. open62541)
 	export PYTHONHASHSEED=0
-	export CGET_CACHE_DIR="$basedir/toolchains/download-cache"
+	export CGET_CACHE_DIR="$fbemaindir/toolchains/download-cache"
 	export CLICOLOR_FORCE=1
 }
 
-find_basedir
+find_fbemaindir
 find_subdirs
 cleanup_execution_environment "$@"
 
@@ -87,15 +89,15 @@ create_compile_commands_json() {
 detect_legacy_open62541_version() {
 	local version=""
 
-	if grep -q __UA_Client_AsyncService "$srcdir"/src/com/opc_ua/opcua_client_information.cpp; then
+	if grep -q __UA_Client_AsyncService "$FBE_FORTE_SOURCE_DIR"/src/com/opc_ua/opcua_client_information.cpp; then
 		version=1.4
-	elif grep -q paUaServerConfig.customHostname "$srcdir"/src/com/opc_ua/opcua_local_handler.cpp; then
+	elif grep -q paUaServerConfig.customHostname "$FBE_FORTE_SOURCE_DIR"/src/com/opc_ua/opcua_local_handler.cpp; then
 		version=1.3
-	elif grep -q UA_Client_connectUsername "$srcdir"/src/com/opc_ua/opcua_client_information.cpp; then
+	elif grep -q UA_Client_connectUsername "$FBE_FORTE_SOURCE_DIR"/src/com/opc_ua/opcua_client_information.cpp; then
 		version=1.1
-	elif [ -d "$srcdir"/src/com/opc_ua ] || grep -q opcua_local_handler "$srcdir"/src/modules/opc_ua/CMakeLists.txt; then
+	elif [ -d "$FBE_FORTE_SOURCE_DIR"/src/com/opc_ua ] || grep -q opcua_local_handler "$FBE_FORTE_SOURCE_DIR"/src/modules/opc_ua/CMakeLists.txt; then
 		version=1.0
-	elif grep -q UA_ServerConfig_new_minimal "$srcdir"/src/modules/opc_ua/opcua_handler.cpp; then
+	elif grep -q UA_ServerConfig_new_minimal "$FBE_FORTE_SOURCE_DIR"/src/modules/opc_ua/opcua_handler.cpp; then
 		# this is a bit fuzzy: there were gradual changes in FORTE and open62541, so it might break depending on the exact version
 		version=0.3
 	else
@@ -125,9 +127,11 @@ prepare_recipe_dir() {
 		[ -d "$recipes/$i" ] || ln -sf "$PWD/$i" "$recipes/" || cp -r "$i" "$recipes/"
 	done
 
-	# for all versioned recipes: select correct package version based on SPDX file 
+	[ -d "$FBE_FORTE_SOURCE_DIR" ] || die "ERROR: 4diac FORTE source directory not accessible: $FBE_FORTE_SOURCE_DIR"
+
+	# for all versioned recipes: select correct package version based on SPDX file
 	cd "$recipes"
-	local spdx="$srcdir/dependencies.spdx"
+	local spdx="$FBE_FORTE_SOURCE_DIR/dependencies.spdx"
 	if [ ! -f "$spdx" ]; then
 		detect_legacy_open62541_version
 		return
@@ -194,9 +198,17 @@ deps=" "
 deploy=""
 forte_io=""
 io_process=""
+preset=""
 load_config() {
 	local var val file="$1" config="${1%.txt}" oldpwd="$PWD"
 	config="${config##*/}"
+
+	if [ -f "$FBE_FORTE_SOURCE_DIR/CMakePresets.json" -a ! -f "$file" ]; then
+		# assume that this is a preset name
+		preset="$file"
+		deps="$("$fbemaindir/toolchains/bin/jq" -r ".vendor.\"eclipse.dev/4diac/FBE/3.0\".dependencies.\"$preset\" | @tsv" "$FBE_FORTE_SOURCE_DIR/CMakePresets.json" 2>/dev/null || true)"
+		return
+	fi
 
 	while read line || [ -n "$line" ]; do
 		line="${line%
@@ -270,6 +282,12 @@ $val"
 					val="${val#*,}"
 				done;;
 
+			PRESET)
+				preset="$val";;
+
+			FBE_FORTE_SOURCE_DIR)
+				FBE_FORTE_SOURCE_DIR="$val";;
+
 			*) set_define "$var" "$type" "$val";;
 		esac
 	done < "$file"
@@ -288,16 +306,15 @@ build_one() {
 
 	reset_build_if_changed "$file"
 
-	prepare_recipe_dir "$prefix"
-
 	set_define ARCH STRING "native-toolchain"
-
 	set_define "CMAKE_SKIP_RPATH" "BOOL" "ON"
 	load_config "$file"
 
+	prepare_recipe_dir "$prefix"
+
 	target="${defs_ARCH#*:}"
-	"$basedir/toolchains/install-crosscompiler.sh" "$target"
-	"$basedir/toolchains/bin/cget" -p "$prefix" init -t "$basedir/toolchains/$target.cmake" --ccache
+	"$fbemaindir/toolchains/install-crosscompiler.sh" "$target"
+	"$fbemaindir/toolchains/bin/cget" -p "$prefix" init -t "$fbemaindir/toolchains/$target.cmake" --ccache
 
 	set_define ARCH
 	set -- -DCMAKE_INSTALL_PREFIX:STRING="$prefix/output"
@@ -309,19 +326,22 @@ build_one() {
 		set -- "$@" "-D$name:$type=$val"
 	done
 
-	"$basedir/toolchains/bin/cget" \
+	"$fbemaindir/toolchains/bin/cget" \
 		-p "$prefix" install $verbose \
 		$deps \
 		"$@" \
 		-DCMAKE_INSTALL_PREFIX:STRING="$prefix" \
 		-G "$generator" \
 		|| die "Dependencies of configuration '$config' failed"
-	if [ -f "$prefix/forte/build/CMakeCache.txt" -a "$basedir/dependencies/recipes/forte/build.cmake" -nt "$prefix/forte/build/CMakeCache.txt" ]; then
+	if [ -f "$prefix/forte/build/CMakeCache.txt" -a "$fbemaindir/dependencies/recipes/forte/CMakeLists.txt" -nt "$prefix/forte/build/CMakeCache.txt" ]; then
 		rm -rf "$prefix/forte"
 	fi
 
-	"$basedir/toolchains/bin/cget" \
+	[ -f "$prefix/forte/build/cmake_install.cmake" ] || rm -rf "$prefix/forte"
+
+	"$fbemaindir/toolchains/bin/cget" \
 		-p "$prefix" build -T install $verbose \
+		${preset:+--preset} ${preset} \
 		-B "$prefix" \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 		"$@" forte \
@@ -331,12 +351,13 @@ build_one() {
 			die "Build of configuration '$config' failed"
 		}
 
-	"$basedir/toolchains/etc/package-dynamic.sh" "$target" "$prefix/output/bin/forte" || true
+	"$fbemaindir/toolchains/etc/package-dynamic.sh" "$target" "$prefix/output/bin/forte" || true
 	create_compile_commands_json "$config"
 
 	if [ -n "$deploy" ]; then
 		(
 			cd "$prefix"
+            echo "### [$config] Running DEPLOY command: $deploy"
 			exec "$SHELL" -c "$deploy"
 		)
 	fi
@@ -358,8 +379,9 @@ while [ -n "$1" ]; do
 			export CMAKE_BUILD_PARALLEL_LEVEL=1;
 			set_define CMAKE_VERBOSE_MAKEFILE BOOL ON;;
 		-c) compile_commands=1;;
+		-s) FBE_FORTE_SOURCE_DIR="$2"; shift;;
 		-k) keep_going=1;;
-		-h) echo "Usage: $0 [-v] [-c] [-k] [config-name ...]" >&2; exit 0;;
+		-h) echo "Usage: $0 [-v] [-c] [-k] [-s source-dir] [config-name ...]" >&2; exit 0;;
 		-*) echo "Unknown flag: $1 -- ignoring";;
 		*) break;
 	esac
@@ -374,7 +396,15 @@ elif [ -d "$1" ]; then
 fi
 
 for i in "$@"; do
-	[ -f "$i" ] || i="configurations/$i.txt"
-	config="$(cd "$(dirname "$i")"; echo "$PWD/$(basename "$i")")"
-	( cd "$basedir"; build_one "$config"; )
+	if [ -f "$i" ]; then
+		config="$(cd "$(dirname "$i")"; echo "$PWD/$(basename "$i")")"
+	elif [ -f "configurations/$i.txt" ]; then
+		config="$PWD/configurations/$i.txt"
+	elif "$fbemaindir/toolchains/bin/cmake" "$FBE_FORTE_SOURCE_DIR" --list-presets | grep "\"$i\"" > /dev/null; then
+		config="$i"
+	else
+		echo "Configuration '$i' not found. Neither file '$i', file 'configurations/$i.txt' nor CMake preset '$i' exist."
+		exit 1
+	fi
+	( cd "$fbemaindir"; build_one "$config"; )
 done

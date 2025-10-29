@@ -13,48 +13,6 @@
 // 
 
 include=inc/default.txt
+CMAKE_BUILD_TYPE=MinSizeRel
 
-///////////////////////////////////
-// Examples of common options:
-///////////////////////////////////
-
-// Cross-compile for different CPU or desktop OS
-// ARCH=arm-linux-musleabihf
-
-// Build for different operating system (not Linux/Windows)
-// FIXME: This doesn't work yet
-// FORTE_ARCHITECTURE=FreeRTOSLwIP
-
-// Enable full debug output
-// CMAKE_BUILD_TYPE=Debug
-// FORTE_LOGLEVEL=LOGDEBUG
-
-// Add additional libraries from the dependencies/recipes/ directory
-// DEPS=opencv
-
-// Add extra compiler options (FORTE only); separate flags by semicolon
-// EXTRA_COMPILER_FLAGS=-std=c++17;-Wno-conversion
-
-// Add extra linker options (FORTE only)
-// EXTRA_LINKER_FLAGS=-fno-lto
-
-// Enable custom module
-// MODULE=LMS1xx
-
-// Enable communication layer
-// COM=MODBUS
-
-// Disable default module (same principle for COM=)
-// MODULE=-Arrowhead
-
-// Configure old-style I/O layer (only one can be active)
-// IO_PROCESS=EV3
-
-// Configure new-style I/O layer (multiple can be active)
-// IO=EMBRICK
-
-// Configure any other CMake option (see inc/default.txt for many examples)
-// FORTE_EventChainExternalEventListSize=128
-
-// Execute other commands after building
-// DEPLOY=scp output/bin/forte foo@10.0.0.1:
+// see inc/config-template.txt for a list of possible options

@@ -13,7 +13,6 @@
 // 
 
 include=inc/default.txt
-
 CMAKE_BUILD_TYPE=Debug
-FORTE_LOGLEVEL=LOGDEBUG
 
+// see inc/config-template.txt for a list of possible options

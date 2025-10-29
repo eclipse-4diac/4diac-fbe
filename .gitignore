@@ -11,6 +11,6 @@ compile_commands.json
 /modules/*/*
 !/modules/*/.gitignore
 /*.zip
-/dependencies/recipes/forte/package.txt
 .gdbinit
 .gdb_history
+/Makefile

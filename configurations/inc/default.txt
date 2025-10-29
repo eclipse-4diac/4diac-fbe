@@ -1,28 +1,88 @@
 // ********************************************************************************
-//  Copyright (c) 2018, 2024 OFFIS e.V.
-// 
+//  Copyright (c) 2018, 2025 OFFIS e.V.
+//
 //  This program and the accompanying materials are made available under the
 //  terms of the Eclipse Public License 2.0 which is available at
 //  http://www.eclipse.org/legal/epl-2.0.
-// 
+//
 //  SPDX-License-Identifier: EPL-2.0
-//  
+//
 //  Contributors:
 //     Jörg Walter - initial implementation
 //  *******************************************************************************/
-// 
+//
 
-include=minimal.txt
+// All modules that should work without special dependencies
+MODULE=Arrowhead,CONVERT,IEC61131,RECONFIGURATION,RT_Events
+MODULE=SIGNALPROCESSING,UTILS
 
-COM=ETH,FBDK,LOCAL,OPC_UA,PAHOMQTT,TSN,SER,HTTP,RAW
+// These should be on by default, but for completeness turn them on
+COM=ETH,FBDK,LOCAL,RAW,SER
 
-MODULE=CONVERT,IEC61131,RT_Events,UTILS,CUSTOM_FBS
-FORTE_EXTERNAL_MODULES_DIRECTORY=${BASEDIR}/modules
+// All extra com layers that should work without special dependencies
+COM=CAN,HTTP,MODBUS,OPC_UA,PAHOMQTT,SER,STRUCT_MEMBER,TSN,XQUERYCLIENT
 
-#FORTE_USE_LUATYPES=LuaJIT
+// IO modules that should work without special dependencies
+IO=EMBRICK
+IO=GPIOCHIP
+IO=PLC01A1
+IO=REVOLUTIONPI
 
 DEPS=libmodbus
 DEPS=open62541
 DEPS=paho.mqtt.c
 DEPS=tinyxml
-#DEPS=luajit
+DEPS=basex
+
+// load local external modules
+FBE_EXTERNAL_MODULES_DIR=${FBE_ROOT}/modules
+
+
+//////////////////////////////////////////////////////////////////////////////////
+// Things that must be enabled explicitly due to non-portable dependencies
+//////////////////////////////////////////////////////////////////////////////////
+// libpcap needs proprietary software on Win32 (npcap)
+//DEPS=openpowerlink
+//MODULE=POWERLINK
+
+//////////////////////////////////////////////////////////////////////////////////
+// FIXME: Things that worked in earlier versions but are broken in 4diac FORTE 3.0
+//////////////////////////////////////////////////////////////////////////////////
+MODULE=-POWERLINK
+MODULE=-Arrowhead
+
+FORTE_COM_OPC_UA_MULTICAST=OFF
+FORTE_COM_OPC_UA_AC=OFF
+
+//FORTE_USE_LUATYPES=LuaJIT
+//DEPS=luajit
+
+/////////////////////////////////////////////////////////////////////////////////
+// IO_PROCESS modules are currently not compatible with FORTE 3.0
+/////////////////////////////////////////////////////////////////////////////////
+// IO_PROCESS=ADS
+// IO_PROCESS=CONMELEON_C1
+// IO_PROCESS=I2C_Dev
+// IO_PROCESS=LMS_EV3
+// IO_PROCESS=Odroid
+// IO_PROCESS=PiFace
+// IO_PROCESS=Raspberry_SPS
+// IO_PROCESS=uMIC
+
+/////////////////////////////////////////////////////////////////////////////////
+// Unsupported and untested modules due to system dependencies
+/////////////////////////////////////////////////////////////////////////////////
+// Linux-only, needs PLCnext SDK
+//IO=-PLCNEXT
+// Linux-only, needs board support Package for WAGO PFC
+//IO=-WagoKbus
+// Linux-only, needs Bosch Rexroth MLPI sources
+//IO_PROCESS=-MLPI
+// Windows-only, needs https://github.com/edimetia3d/OPC-Client-X64/tree/master/OPCClientToolKit
+//COM=-OPC
+// ESP32-only, needs Zephyr RTOS
+//IO=-ZEPHYR
+// STM32-only, needs FreeRTOS and STM32 BSP
+//IO=-ELITEBOARD
+// needs Beckhoff ADS library
+//IO_PROCESS=-ADS

@@ -52,6 +52,8 @@ cleanup_execution_environment() {
 	# make python-based code generators deterministic (e.g. open62541)
 	export PYTHONHASHSEED=0
 	export CGET_CACHE_DIR="$fbemaindir/toolchains/download-cache"
+	export CURL_CA_BUNDLE="$fbemaindir/toolchains/etc/ssl/curl-ca-bundle.crt"
+	unset PYTHONHOME PYTHONPATH MAKEFLAGS
 	export CLICOLOR_FORCE=1
 }
 

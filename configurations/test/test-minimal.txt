@@ -11,6 +11,3 @@
 //     Jörg Walter - initial implementation
 //  *******************************************************************************/
 // 
-
-include=../inc/minimal.txt
-ARCH=native-toolchain

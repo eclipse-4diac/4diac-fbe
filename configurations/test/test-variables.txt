@@ -13,5 +13,6 @@
 // 
 
 include=${FBE_ROOT}/configurations/test/test-minimal.txt
+
 FORTE_SRC=${FBE_MAIN}/forte
 DEPLOY=test "${HOME}:${CONFIG}" = "$(echo ~):test-variables" -a '${}' = '$' -a -x "${PREFIX}/output/bin/forte"

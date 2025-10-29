@@ -62,7 +62,7 @@ cleanup_execution_environment "$@"
 ################################################################################
 
 replace() { # replace varname "foo" "bar"
-	eval "while [ -z \"\${$1##*\"\$2\"*}\" ]; do $1=\"\${$1%%\"\$2\"*}\"\$3\"\${$1#*\"\$2\"}\"; done";
+	eval "while [ -n \"\${$1}\" -a -z \"\${$1##*\"\$2\"*}\" ]; do $1=\"\${$1%%\"\$2\"*}\"\$3\"\${$1#*\"\$2\"}\"; done";
 }
 
 if [ "$(uname -s)" = "Windows_NT" ]; then
@@ -175,10 +175,6 @@ set_define() {
 	local name="$1" type="$2" val="$3"
 	if [ -n "$val" ]; then
 		eval "[ -n \"\$defs_$name\" ] || defs=\"\$defs\$name \""
-		replace val '${BASEDIR}' "$basedir"
-		replace val '${BUILDROOT}' "$buildroot"
-		replace val '${HOME}' "$(echo ~/)"
-		replace val '$CONFIG'  "$config"
 		eval "defs_$name=\"\$type:\$val\""
 	elif eval "[ -n \"\$defs_$name\" ]"; then
 		unset defs_$name
@@ -212,6 +208,13 @@ load_config() {
 		if [ "$type" = "$var" ]; then
 			type="STRING"
 		fi
+
+		replace val '${FBE_ROOT}' "$fberootdir"
+		replace val '${FBE_MAIN}' "$fbemaindir"
+		replace val '${PREFIX}' "$prefix"
+		replace val '${HOME}' "$(echo ~)"
+		replace val '${CONFIG}'  "$config"
+		replace val '${}'  '$'
 
 		case "$var" in
 			//*|"#"*|"") ;;

@@ -6,7 +6,7 @@
 # http://www.eclipse.org/legal/epl-2.0.
 #
 # SPDX-License-Identifier: EPL-2.0
-# 
+#
 # Contributors:
 #    Jörg Walter - initial implementation
 # *******************************************************************************/
@@ -14,6 +14,12 @@
 
 cmake_minimum_required(VERSION 3.10)
 project(libpcap C)
+
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64)
+    set(CMAKE_OSX_ARCHITECTURES arm64)
+else ()
+    set(CMAKE_OSX_ARCHITECTURES x86_64)
+endif ()
 
 include(${CGET_CMAKE_ORIGINAL_SOURCE_FILE})
 

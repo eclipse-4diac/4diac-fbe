@@ -46,6 +46,27 @@ endif ()
 
 # make sure to only build and install the forte binary
 add_subdirectory($ENV{FBE_FORTE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/forte EXCLUDE_FROM_ALL)
+
+function(forte_add_modules dir)
+    file(REAL_PATH "${dir}" absdir)
+    if (EXISTS ${absdir}/CMakeLists.txt)
+        message(STATUS "Adding External Module: ${dir}")
+        string(MD5 bindir_hash "${absdir}")
+        get_property(bindir_base TARGET forte PROPERTY BINARY_DIR)
+        add_subdirectory(${absdir} ${bindir_base}/module-${bindir_hash})
+    else()
+        file(GLOB dirs CONFIGURE_DEPENDS "${dir}/*")
+        foreach(dir IN LISTS dirs)
+            forte_add_modules(${dir})
+        endforeach()
+    endif()
+endfunction()
+
+set(FBE_EXTERNAL_MODULES_DIR "" CACHE STRING "Directory containing additional 4diac FORTE modules, possibly organised in subdirectories")
+if (FBE_EXTERNAL_MODULES_DIR)
+  forte_add_modules(${FBE_EXTERNAL_MODULES_DIR})
+endif ()
+
 install(TARGETS forte DESTINATION bin)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

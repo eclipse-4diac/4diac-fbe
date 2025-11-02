@@ -7,7 +7,7 @@
 # http://www.eclipse.org/legal/epl-2.0.
 #
 # SPDX-License-Identifier: EPL-2.0
-# 
+#
 # Contributors:
 #    Jörg Walter - initial implementation
 # *******************************************************************************/
@@ -26,7 +26,7 @@ cd ..
 	"$dirname"/forte/ \
 	"$dirname"/modules/ \
 	"$dirname"/types/ \
-	"$dirname"/toolchains/etc/ \
+	"$dirname"/toolchains/etc/install.* \
 	"$dirname"/configurations/native-toolchain.txt \
 	"$dirname"/configurations/debug.txt \
 	"$dirname"/configurations/inc \

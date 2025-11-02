@@ -1,0 +1,1 @@
+BaseXdb/basex@12.0 -X build.cmake -H sha256:101f1999a4b2e0667cf91d27fca26f9e3683fc707ebc2f5e406a9fb4737ca033

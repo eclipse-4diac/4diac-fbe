@@ -30,6 +30,7 @@ DEPS=boost
 //MODULE=POWERLINK
 DEPS=openpowerlink
 
-FBE_EXTERNAL_MODULES_DIR=
+FBE_EXTERNAL_MODULES_DIR=${FBE_ROOT}/modules/example
+MODULE=FBE_EXAMPLE
 
 DEPLOY=! grep -A 10 "Manually-specified variables were not used by the project" forte.log

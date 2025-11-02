@@ -1,5 +1,0 @@
-*.cpp
-*.h
-!*.txt
-!generated
-!edited

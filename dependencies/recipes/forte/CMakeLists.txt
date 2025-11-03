@@ -22,6 +22,11 @@ set(FORTE_MODULE_POWERLINK_LIB_DIR "${CGET_PREFIX}/src/openpowerlink" CACHE STRI
 set(FORTE_MODULE_POWERLINK_TINYXML_DIR "${CGET_PREFIX}/src/tinyxml" CACHE STRING "" FORCE)
 set(FORTE_COM_PAHOMQTT_LIB "paho-mqtt3a" CACHE STRING "" FORCE)
 set(FORTE_COM_OPC_UA_ENCRYPTION_MBEDTLS OFF CACHE BOOL "" FORCE)
+# 4diac FBE does not provide libbacktrace, it uses the GCC libstdc++ experimental feature
+set(FORTE_STACKTRACE_IMPL "cxx23" CACHE STRING "" FORCE)
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(FORTE_STACKTRACE OFF CACHE BOOL "" FORCE)
+endif ()
 
 # FBE-specific defaults, can be overridden
 set(FORTE_COM_OPC_UA_AC ON CACHE BOOL "")

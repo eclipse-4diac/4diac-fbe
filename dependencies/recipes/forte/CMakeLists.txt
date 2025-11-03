@@ -38,13 +38,10 @@ if (WIN32 AND CMAKE_SYSTEM_PROCESSOR STREQUAL "i686")
   message(WARNING "The FBE Windows toolchain now uses the UCRT runtime. On Windows 8.1 and earlier, you need to install it manually: https://download.visualstudio.microsoft.com/download/pr/56f631e5-4252-4f28-8ecc-257c7bf412b8/D305BAA965C9CD1B44EBCD53635EE9ECC6D85B54210E2764C8836F4E9DEFA345/VC_redist.x86.exe")
 endif ()
 
-# TODO: these should be migrated to build guards in 4diac FORTE
-if (NOT LINUX)
-  set(FORTE_MODULE_REVOLUTIONPI OFF CACHE BOOL "" FORCE)
-endif ()
-if (APPLE)
-  set(FORTE_COM_SER OFF CACHE BOOL "" FORCE)
-  set(FORTE_COM_TSN OFF CACHE BOOL "" FORCE)
+# extra libraries for dependencies
+if (WIN32)
+  # for libressl and others
+  link_libraries(crypt32 iphlpapi)
 endif ()
 
 # make sure to only build and install the forte binary

@@ -35,6 +35,7 @@ if exist %basedir%\toolchains\bin\cget goto noinstall
 :noinstall
 
 %basedir%\toolchains\bin\sh.exe %*
+if errorlevel 1 pause
 exit /b
 
 :incomplete

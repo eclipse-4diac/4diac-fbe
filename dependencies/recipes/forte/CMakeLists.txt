@@ -71,7 +71,15 @@ endif ()
 install(TARGETS forte DESTINATION bin)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  add_custom_target(forte.unstripped ALL DEPENDS forte)
+  if (WIN32)
+    # Compress debug info, since for Win32 the linker is unable to do this on
+    # the fly. This saves more than 1GB(!) of executable size.
+    add_custom_target(forte.unstripped ALL
+      DEPENDS forte
+      COMMAND ${CMAKE_OBJCOPY} --compress-debug-sections forte/forte${CMAKE_EXECUTABLE_SUFFIX})
+  else ()
+    add_custom_target(forte.unstripped ALL DEPENDS forte)
+  endif()
 else ()
   add_custom_target(forte.stripped ALL
     DEPENDS forte

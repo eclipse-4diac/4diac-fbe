@@ -70,7 +70,7 @@ endif ()
 
 install(TARGETS forte DESTINATION bin)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
   if (WIN32)
     # Compress debug info, since for Win32 the linker is unable to do this on
     # the fly. This saves more than 1GB(!) of executable size.

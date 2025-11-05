@@ -15,6 +15,4 @@
 include=test-clang.txt
 
 ARCH=aarch64-apple-darwin20.2
-DEPS=-openpowerlink
-COM=-POWERLINK
 DEPLOY=

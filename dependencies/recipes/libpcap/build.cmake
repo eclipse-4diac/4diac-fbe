@@ -21,6 +21,13 @@ else ()
     set(CMAKE_OSX_ARCHITECTURES x86_64)
 endif ()
 
+if (WIN32)
+  # libpcap is a dependency for openpowerlink. On Win32, openpowerlink does
+  # not use libpcap, it accesses WinPCap directly instead. Nothing to do
+  # here. It would fail to build anyways.
+  return()
+endif ()
+
 include(${CGET_CMAKE_ORIGINAL_SOURCE_FILE})
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libpcap.a DESTINATION lib)

@@ -14,7 +14,7 @@
 
 // All modules that should work without special dependencies
 MODULE=Arrowhead,CONVERT,IEC61131,RECONFIGURATION,RT_Events
-MODULE=SIGNALPROCESSING,UTILS
+MODULE=SIGNALPROCESSING,UTILS,POWERLINK
 
 // These should be on by default, but for completeness turn them on
 COM=ETH,FBDK,LOCAL,RAW,SER
@@ -33,17 +33,10 @@ DEPS=open62541
 DEPS=paho.mqtt.c
 DEPS=tinyxml
 DEPS=basex
+DEPS=openpowerlink
 
 // load local external modules
 FBE_EXTERNAL_MODULES_DIR=${FBE_ROOT}/modules
-
-
-//////////////////////////////////////////////////////////////////////////////////
-// Things that must be enabled explicitly due to non-portable dependencies
-//////////////////////////////////////////////////////////////////////////////////
-// libpcap needs proprietary software on Win32 (npcap)
-//DEPS=openpowerlink
-//MODULE=POWERLINK
 
 //////////////////////////////////////////////////////////////////////////////////
 // FIXME: Things that worked in earlier versions but are broken in 4diac FORTE 3.0

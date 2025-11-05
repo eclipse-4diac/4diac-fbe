@@ -15,7 +15,4 @@
 include=test-all.txt
 
 ARCH=x86_64-w64-mingw32
-
-COM=-POWERLINK
-DEPS=-openpowerlink
 DEPLOY=

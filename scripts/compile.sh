@@ -354,6 +354,9 @@ build_one() {
 			die "Build of configuration '$config' failed"
 		}
 
+	# print FORTE CMake warnings
+	awk '/^.\[[0-9]*mCMake Warning/ { doprint=1; $_="=================================="; }  /^  Manually-specified variables/ { doprint=0; } /^.\[0m$/ { doprint = 0; } /[^ ]/ { if (doprint) print; } ' "$prefix/forte.log"
+
 	"$fbemaindir/toolchains/etc/package-dynamic.sh" "$target" "$prefix/output/bin/forte" || true
 	create_compile_commands_json "$config"
 

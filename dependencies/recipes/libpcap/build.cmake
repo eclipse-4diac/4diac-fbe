@@ -15,6 +15,12 @@
 cmake_minimum_required(VERSION 3.10)
 project(libpcap C)
 
+include(toolchain-utils)
+
+patch(grammar.y.in "YYBYACC" "NO_YYBYACC")
+patch(grammar.y.in "YYPATCH" "NO_YYPATCH")
+set(YACC_EXECUTABLE ${TOOLCHAINS_ROOT}/bin/byacc)
+
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64)
     set(CMAKE_OSX_ARCHITECTURES arm64)
 else ()

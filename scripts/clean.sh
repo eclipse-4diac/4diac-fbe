@@ -23,6 +23,7 @@ common_clean() {
 		[ -d "$i.cget_lock" ] && rmdir "$i.cget_lock"
 		[ -f "$i/__cget_sh_CMakeLists.txt" ] && mv "$i/__cget_sh_CMakeLists.txt" "$i/CMakeLists.txt"
 	done
+	rm -rf build/testroot.*
 }
 
 case "$1" in

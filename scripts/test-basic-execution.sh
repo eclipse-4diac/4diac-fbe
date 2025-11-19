@@ -13,27 +13,49 @@
 # *******************************************************************************/
 #
 
-scripts="$(dirname "$0")"
+scripts="$(cd "$(dirname "$0")"; pwd)"
 
 die() { echo "$*" >&2; exit 1; }
+
+run_isolated() {
+	case "`file "$1"`" in
+	*"shell script"*)
+		# gnu toolchain wrapper script, isolate from system files
+		cp "$scripts/../toolchains/bin/sh" bin
+		unshare --user --map-root-user --mount-proc --pid --fork /usr/sbin/chroot . "$@";;
+	*x86-64*)
+		# native binary, isolate from system files
+		unshare --user --map-root-user --mount-proc --pid --fork /usr/sbin/chroot . "$@";;
+	*)
+		# foreign binary, assume system has appropriate binfmt/qemu config
+		"$@";;
+	esac
+}
+
+run_wine() {
+	export WINEPREFIX="$PWD/.wine"
+	wine "$@"
+}
+
 run() {
 	case "$1" in
-		*.exe) WINEPREFIX="$(cd "$(dirname "$1")"/..; pwd)/.wine" wine "$@";;
-		*) "$@";;
+		*.exe) run_wine "$@";;
+		*) run_isolated "$@";;
 	esac
 }
 
 for i in "$@"; do (
 	i="${i%/}"
-	[ -f "$i/forte.log" ] || die "Error in dependencies: $i"
-	tail -n 1 "$i/forte.log" | grep "### Finished successfully." > /dev/null || die
+	cd "$i"
+	[ -f "forte.log" ] || die "Forte dependencies did not build: $i"
+	tail -n 1 "forte.log" | grep "### Finished successfully." > /dev/null || die "Forte did not build successfully: $i"
 	case "$i" in
-	*/test-minimal|test-minimal)
-		run "$i"/output/bin/forte*  -f "$scripts"/HelloWorld.fboot > "$i.out" 2>&1 || die "Could not execute $i forte";;
+	*-minimal)
+		cp "$scripts"/HelloWorld.fboot helloworld.fboot;;
 	*)
-		run "$i"/output/bin/forte*  -f "$scripts"/HelloWorld-OPCUA.fboot -op 61498 > "$i.out" 2>&1 || die "Could not execute $i forte";;
+		cp "$scripts"/HelloWorld-OPCUA.fboot helloworld.fboot;;
 	esac
-	mv helloworld.txt "$i.txt" || die "Forte $i did not run"
-	grep "^'Hello World!';" "$i.txt" > /dev/null || die "Forte $i did not run correctly"
+	run ./output/bin/forte* -f helloworld.fboot -op 61498 > "forte.out" 2>&1 || die "Could not execute $i forte"
+	grep "^'Hello World!';" "helloworld.txt" > /dev/null || die "Forte $i did not run correctly"
 	echo "$i: OK"
 ); done

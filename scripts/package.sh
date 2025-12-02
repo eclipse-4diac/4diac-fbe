@@ -27,6 +27,7 @@ cd ..
 	"$dirname"/modules/ \
 	"$dirname"/types/ \
 	"$dirname"/toolchains/etc/install.* \
+	"$dirname"/toolchains/etc/cget/cmake/toolchain-utils.cmake \
 	"$dirname"/configurations/native-toolchain.txt \
 	"$dirname"/configurations/debug.txt \
 	"$dirname"/configurations/inc \

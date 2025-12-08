@@ -5,6 +5,7 @@
 !/configurations/debug.txt
 !/configurations/inc
 !/configurations/test
+!/configurations/releases
 /dependencies/*
 !/dependencies/recipes
 compile_commands.json

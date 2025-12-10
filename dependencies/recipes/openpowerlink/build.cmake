@@ -12,10 +12,28 @@
 # *******************************************************************************/
 #
 
-PROJECT(openpowerlink C)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.10)
+project(openpowerlink C)
 
-set(CFG_X86_DEMO_MN_CONSOLE ON CACHE BOOL "" FORCE)
+include(toolchain-utils)
+
+if (WIN32)
+  patch(Include/global.h "__GNUC__" "__DISABLED_GNUC__")
+  patch(SharedBuff/ShbIpc-Win32.c "sharedbuff\\.h" "SharedBuff.h")
+  patch(SharedBuff/ShbIpc-Win32.c "shbipc\\.h" "ShbIpc.h")
+  add_compile_definitions("QWORD=long long int")
+  add_compile_definitions(TARGET_SYSTEM=_WIN32_)
+  add_compile_definitions(DEV_SYSTEM=_DEV_WIN32_)
+  set(CFG_X86_WINDOWS_DLL OFF CACHE BOOL "" FORCE)
+elseif (APPLE)
+  # not supported on APPLE, and 4diac FORTE doesn't use this on APPLE, so just
+  # pretend this is installed
+  message(WARNING "Not supported on APPLE, not building or installing anything")
+  return()
+endif ()
+
+set(CFG_X86_DEMO_CN_CONSOLE OFF CACHE BOOL "" FORCE)
+set(CFG_X86_DEMO_MN_CONSOLE OFF CACHE BOOL "" FORCE)
 set(CFG_X86_DEMO_MN_QT OFF CACHE BOOL "" FORCE)
 set(CFG_KERNEL_STACK OFF CACHE BOOL "" FORCE)
 
@@ -24,10 +42,9 @@ set(CFG_POWERLINK_MN ON CACHE BOOL "" FORCE) # master node
 add_definitions(-D__sched_priority=sched_priority)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CGET_PREFIX}/lib")
 
-file(READ EplStack/EplTgtConio.c patching)
-string(REGEX REPLACE "#include <unistd.h>" "#include <unistd.h>\n#include <sys/select.h>" patching "${patching}")
-file(WRITE EplStack/EplTgtConio.c "${patching}")
+patch(EplStack/EplTgtConio.c "#include <unistd.h>" "#include <unistd.h>\n#include <sys/select.h>")
 
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 include(${CGET_CMAKE_ORIGINAL_SOURCE_FILE})
 
 install(DIRECTORY Include DESTINATION src/openpowerlink)

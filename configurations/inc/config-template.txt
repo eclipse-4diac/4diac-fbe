@@ -1,0 +1,273 @@
+//****************************************************************************
+//  Copyright (c) 2018, 2025 OFFIS e.V.
+// 
+//  This program and the accompanying materials are made available under the
+//  terms of the Eclipse Public License 2.0 which is available at
+//  http://www.eclipse.org/legal/epl-2.0.
+// 
+//  SPDX-License-Identifier: EPL-2.0
+//  
+//  Contributors:
+//     Jörg Walter - initial implementation
+//***************************************************************************/
+// 
+// Configurations are mainly a list of CMake options, one per line, simliar to
+// the CMakeCache.txt format. Type specifiers are optional, however, and
+// there are some options with special handling.
+//
+// All values can include a few placeholder expressions that are replaced by
+// the corresponding value:
+//
+// ${FBE_ROOT} -- current FBE root directory
+// ${FBE_MAIN} -- directory of the main FBE if FBE_ROOT is out-of-tree
+// ${PREFIX}   -- output base directory of the build
+// ${HOME}     -- user home directory
+// ${CONFIG}   -- configuration name, usually name of toplevel config file
+// ${}         -- a literal $ character
+//
+// While this is meant to configure 4diac FORTE, you can also specify options
+// for dependency packages (if they offer CMake build options)
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Overall 4diac-FBE configuration and special directives                   //
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// CMAKE_BUILD_TYPE: specify build type for all packages, including
+// dependencies
+
+// Example: release build
+//CMAKE_BUILD_TYPE=Release
+// Example: debug build
+//CMAKE_BUILD_TYPE=Debug
+
+//////////////////////////////////////////////////////////////////////////////
+// ARCH: (cross-)compiler architecture, e.g. arm-linux-musleabihf. See
+// toolchains/etc/crosscompilers.sha256sum for a list of available compilers 
+
+// Example: default value, compile for the machine FBE runs on
+//ARCH=native-toolchain
+// Example: Cross-compile binaries for recent Raspberry Pis
+//ARCH=aarch64-linux-musl
+// Example: Link with binary-only linux libraries on ARM32 CPUs (some PLCs)
+//ARCH=arm-linux-gnueabi
+
+//////////////////////////////////////////////////////////////////////////////
+// DEPS: build additional packages from the dependencies/recipes directory
+// Can be specified multiple times, prefix a minus sign to remove a dependency
+
+// Example: add open62541
+//DEPS=open62541
+// Example: remove open62541
+//DEPS=-open62541
+
+//////////////////////////////////////////////////////////////////////////////
+// DEPLOY: run a shell command after successful build
+
+// Example: copy binary to target device
+//DEPLOY=scp output/bin/forte pi@myraspberrypi.local:
+
+//////////////////////////////////////////////////////////////////////////////
+// include: include another config file, relative to the currently loaded file
+
+// Example: include recommended extra features
+//include=inc/default.txt
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Overall 4diac-FORTE configuration -- Options with special handling.      //
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// PRESET: load a CMake preset from 4diac FORTE
+
+// Example: base the build off the posix-test preset
+//PRESET=posix-test
+
+//////////////////////////////////////////////////////////////////////////////
+// MODULE and COM: configure enabled FORTE modules/com layers
+// Can be specified multiple times, can be a comma-separated list.
+// A name prefixed with a minus sign disables that module.
+
+// Example: enable TSN com layer but disable SER
+//COM=TSN,-SER
+
+//////////////////////////////////////////////////////////////////////////////
+// IO and IO_PROCESS: configure enabled FORTE IO modules
+// You can specify exactly one IO_PROCESS module, or multiple IO modules.
+// IO can be specified multiple times, prefix a minus sign to remove a module.
+
+// Example: enable EV3 module
+//IO_PROCESS=LMS_EV3
+// Example: enable EMBRICK module but disable GPIOCHIP module
+//IO=EMBRICK
+//IO=-GPIOCHIP
+
+//////////////////////////////////////////////////////////////////////////////
+// 4diac-toolchains variables to add compile options reliably. These apply to
+// all dependencies, not just FORTE.
+
+//Extra flags to pass to all assembler invocations
+//TOOLCHAIN_EXTRA_ASM_FLAGS:STRING=
+
+//Extra flags to pass to all C/C++ compiler invocations
+//TOOLCHAIN_EXTRA_C_FLAGS:STRING=
+
+//Extra flags to pass to all linker invocations
+//TOOLCHAIN_EXTRA_LINKER_FLAGS:STRING=
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// End of 4diac-FBE configuration.  The remainder are plain CMake variables //
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// 4diac FORTE core options
+// Note: FORTE_IO*, FORTE_MODULE_*, and FORTE_COM_* are managed by the options
+// above.
+
+// This option is not tested in current FBE
+//BUILD_SHARED_LIBS:BOOL=OFF
+
+//Architecture for which to build 4diac FORTE
+//FORTE_ARCHITECTURE:STRING=Posix
+
+//Path to boot file
+//FORTE_BOOT_FILE_LOCATION:STRING=forte.fboot
+
+//Build 4diac FORTE as an executable, otherwise build a library
+//FORTE_BUILD_EXECUTABLE:BOOL=ON
+
+//FORTE Communication interrupt queue size
+//FORTE_CommunicationInterruptQueueSize:STRING=10
+
+//FORTE default device implementation
+//FORTE_DEVICE_DEFAULT_IMPL:STRING=RMT_DEV
+
+//FORTE fixed device implementation
+//FORTE_DEVICE_FIXED_IMPL:STRING=util::factory::DynamicImpl
+
+//FORTE fixed device include directive
+//FORTE_DEVICE_FIXED_INCLUDE:STRING=forte/util/factory.h
+
+//FORTE default ecet implementation
+//FORTE_ECET_DEFAULT_IMPL:STRING=default
+
+//FORTE fixed ecet implementation
+//FORTE_ECET_FIXED_IMPL:STRING=CEventChainExecutionThread
+
+//FORTE fixed ecet include directive
+//FORTE_ECET_FIXED_INCLUDE:STRING=forte/ecet.h
+
+//Enable FORTE FMU Export. It generates a shared library
+//FORTE_ENABLE_FMU:BOOL=OFF
+
+//FORTE eventchain event list size
+//FORTE_EventChainEventListSize:STRING=256
+
+//FORTE eventchain external event list size
+//FORTE_EventChainExternalEventListSize:STRING=16
+
+//Forte configuration for using simulated progression of time
+//FORTE_FAKE_TIME:BOOL=OFF
+
+//FORTE IP layer recv buffer size
+//FORTE_IPLayerRecvBufferSize:STRING=1500
+
+//Buffer length of the logger
+//FORTE_LOGGER_BUFFER_SIZE:STRING=300
+
+//Logger time in IEC 61131-3 date time literal
+//FORTE_LOGGER_READABLE_TIME:BOOL=OFF
+
+//Loglevel to use
+//FORTE_LOGLEVEL:STRING=$<IF:$<CONFIG:Debug>,LOGINFO,LOGERROR>
+
+//Max supported absolute port index for forcing data pins (multiples
+// of 64 recommended)
+//FORTE_MGM_MAX_SUPPORTED_FORCE_INDEX:STRING=64
+
+//Max supported hierarchy that can be provided in a management
+// commands
+//FORTE_MGM_MAX_SUPPORTED_NAME_HIERARCHY:STRING=30
+
+//Enable the generation of map files
+//FORTE_POSIX_GENERATE_MAP_FILE:BOOL=FALSE
+
+//Enable RTTI and Exceptions
+//FORTE_RTTI_AND_EXCEPTIONS:BOOL=OFF
+
+//Include stacktrace when logging errors
+//FORTE_STACKTRACE:BOOL=OFF
+
+//Enable 4diac FORTE boot file
+//FORTE_SUPPORT_BOOT_FILE:BOOL=ON
+
+//Enable Forte Custom Serializeable Datatypes
+//FORTE_SUPPORT_CUSTOM_SERIALIZABLE_DATATYPES:BOOL=OFF
+
+//FORTE System Tests
+//FORTE_SYSTEM_TESTS:BOOL=OFF
+
+//Build Tests
+//FORTE_TESTS:BOOL=OFF
+
+//FORTE default timer handler implementation
+//FORTE_TIMER_HANDLER_DEFAULT_IMPL:STRING=default
+
+//FORTE fixed timer handler implementation
+//FORTE_TIMER_HANDLER_FIXED_IMPL:STRING=util::factory::DynamicImpl
+
+//FORTE fixed timer handler include directive
+//FORTE_TIMER_HANDLER_FIXED_INCLUDE:STRING=forte/util/factory.h
+
+//FORTE Common Trace Format (CTF) tracing
+//FORTE_TRACE_CTF:BOOL=OFF
+
+//FORTE ticks per second
+//FORTE_TicksPerSecond:STRING=1000
+
+//Compile the fake ecet used for testing
+//FORTE_USE_FAKE_ECET:BOOL=OFF
+
+
+//////////////////////////////////////////////////////////////////////////////
+// 4diac FORTE module-specific options
+
+//HTTP Listening Port
+//FORTE_COM_HTTP_LISTENING_PORT:STRING=80
+
+//Enable OPC UA A&C Support
+//FORTE_COM_OPC_UA_AC:BOOL=OFF
+
+//OPC UA Client requested publishing interval via OPC UA data subscription
+// in ms
+//FORTE_COM_OPC_UA_CLIENT_PUB_INTERVAL:STRING=100.0
+
+//Custom hostname which is used for the OPC UA app name and app uri
+//FORTE_COM_OPC_UA_CUSTOM_HOSTNAME:STRING=
+
+//The open62541 lilbrary was compiled using encryption
+//FORTE_COM_OPC_UA_ENCRYPTION:BOOL=OFF
+
+//Enable OPC UA Event Support
+//FORTE_COM_OPC_UA_Events:BOOL=OFF
+
+//Enable multicast support for OPC UA and registering with LDS
+//FORTE_COM_OPC_UA_MULTICAST:BOOL=OFF
+
+//Port where the OPC_UA server will listen
+//FORTE_COM_OPC_UA_PORT:STRING=4840
+
+//The maximum time in OPC UA server will wait to iterate again
+//FORTE_COM_OPC_UA_SERVER_MAX_ITERATION_INTERVAL:STRING=10
+
+//OPC UA Server publishing interval in ms
+//FORTE_COM_OPC_UA_SERVER_PUB_INTERVAL:STRING=100.0
+
+

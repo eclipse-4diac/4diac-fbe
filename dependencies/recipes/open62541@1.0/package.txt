@@ -1,0 +1,1 @@
+open62541/open62541@v1.0 -X build.cmake -H sha256:9be66efefe2cdb07a7638aad91c301b5c6163f99c66995bc41cce31ec0ea207e

@@ -20,6 +20,7 @@ if [ "$(uname -s)" != "Linux" ]; then
 	exit 1
 fi
 
+./scripts/clean.sh --all
 ./scripts/compile.sh "$@" configurations/test/
 echo "____________________________________________________________________________"
 echo "Test results:"

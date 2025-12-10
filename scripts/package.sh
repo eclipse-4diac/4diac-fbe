@@ -7,29 +7,30 @@
 # http://www.eclipse.org/legal/epl-2.0.
 #
 # SPDX-License-Identifier: EPL-2.0
-# 
+#
 # Contributors:
 #    Jörg Walter - initial implementation
 # *******************************************************************************/
 #
 
 cd "$(dirname "$0")/.."
-name="runtime-$(date +%Y-%m-%d_%H.%M).zip"
-toolchains/bin/7za a -Tzip "$name" \
-	dependencies/recipes \
-	forte/ \
-	Modules/ \
-	scripts/ \
-	toolchains/etc \
-	toolchains/*.sh \
-	toolchains/*.cmd \
-	toolchains/README.rst \
-	README.rst \
-	configurations/native-toolchain.txt \
-	configurations/debug.txt \
-	configurations/inc \
-	configurations/test \
-	Types/ \
-	-xr'!*@*' \
+dirname="${PWD##*/}"
+[ "$dirname" = "4diac-fbe" ] || { echo "Toplevel directory must be called '4diac-fbe'" >&2; exit 1; }
+name="$dirname-$(date +%Y-%m-%d_%H.%M).zip"
+cd ..
+"$dirname"/toolchains/bin/7za a -Tzip "$name" \
+	"$dirname"/*.md \
+	"$dirname"/*.cmd \
+	"$dirname"/scripts/ \
+	"$dirname"/dependencies/recipes \
+	"$dirname"/forte/ \
+	"$dirname"/modules/ \
+	"$dirname"/types/ \
+	"$dirname"/toolchains/etc/install.* \
+	"$dirname"/toolchains/etc/cget/cmake/toolchain-utils.cmake \
+	"$dirname"/configurations/native-toolchain.txt \
+	"$dirname"/configurations/debug.txt \
+	"$dirname"/configurations/inc \
+	"$dirname"/configurations/test \
 	-xr'!.breakpoints' \
 	-xr'!.ccls-cache'

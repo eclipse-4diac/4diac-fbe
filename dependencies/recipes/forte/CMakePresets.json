@@ -1,0 +1,11 @@
+{
+"version": 10,
+"include": [ "$penv{FBE_FORTE_SOURCE_DIR}/CMakePresets.json" ],
+  "vendor": {
+    "eclipse.dev/4diac/FBE/3.0": {
+      "dependencies": {
+        "example-preset": [ "libmodbus", "open62541", "paho.mqtt.c" ]
+      }
+    }
+  }
+}

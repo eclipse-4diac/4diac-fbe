@@ -1,1 +1,1 @@
-the-tcpdump-group/libpcap@libpcap-1.10.5 -H sha256:6cd9835338ca334b699b1217e2aee2b873463c76aafd19b8b9d4710554f025ac -X build.cmake
+https://www.tcpdump.org/release/libpcap-1.10.6.tar.xz -H sha256:ec97d1206bdd19cb6bdd043eaa9f0037aa732262ec68e070fd7c7b5f834d5dfc -X build.cmake

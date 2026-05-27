@@ -19,6 +19,8 @@ include(toolchain-utils)
 
 patch(grammar.y.in "YYBYACC" "NO_YYBYACC")
 patch(grammar.y.in "YYPATCH" "NO_YYPATCH")
+# Somehow, the C99 compiler flag test fails on macos, even though it succeeds. We don't need it.
+patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "require_and_add_compiler_option\\([^)]*\\)" "")
 set(YACC_EXECUTABLE ${TOOLCHAINS_ROOT}/bin/byacc)
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64)

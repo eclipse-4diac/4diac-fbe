@@ -1,5 +1,5 @@
 #********************************************************************************
-# Copyright (c) 2018, 2024 OFFIS e.V.
+# Copyright (c) 2018, 2026 OFFIS e.V., Primetals Technologies Austria GmbH
 #
 # This program and the accompanying materials are made available under the
 # terms of the Eclipse Public License 2.0 which is available at
@@ -9,6 +9,7 @@
 # 
 # Contributors:
 #    Jörg Walter - initial implementation
+#    Markus Meingast - add support for OPC UA Alarms & Conditions
 # *******************************************************************************/
 #
 
@@ -94,6 +95,33 @@ patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "check_add_cc_flag\\(\"-Werror\"\\)" ""
 patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "check_add_cc_flag\\(\"-Wno-static-in-inline\"\\)" "")
 patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "CMAKE_INTERPROCEDURAL_OPTIMIZATION" "disabled_CMAKE_INTERPROCEDURAL_OPTIMIZATION")
 patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "SANITIZER_FLAGS \"[^\"]*\"" "SANITIZER_FLAGS \"\"")
+
+if (UA_NAMESPACE_ZERO STREQUAL "FULL" OR UA_ENABLE_ALARM_CONDITIONS)
+  if (NOT EXISTS "${NODESET_DIR}/Schema/Opc.Ua.NodeSet2.xml")
+    message(STATUS "UA_NAMESPACE_ZERO is FULL. Fetching missing UA-Nodeset submodule...")
+    set(NODESET_VERSION "Machinery-1.03.0-2023-08-01") 
+    set(NODESET_HASH "aaa7b0d318772ff99ca45f5b49d91d293670986f6172279dd6cc567b487d8850")
+
+    download_extra_source(ua_nodeset ua-nodeset.tar.gz
+      https://github.com/OPCFoundation/UA-Nodeset/archive/refs/tags/${NODESET_VERSION}.tar.gz
+      ${NODESET_HASH})
+
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E tar xf "${SOURCE_ua_nodeset}"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/deps"
+      RESULT_VARIABLE EXTRACT_RESULT
+    )
+
+    if(NOT EXTRACT_RESULT EQUAL 0)
+      message(FATAL_ERROR "Failed to extract UA-Nodeset!")
+    endif()
+
+    set(NODESET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/ua-nodeset")
+    file(REMOVE_RECURSE "${NODESET_DIR}")
+    file(RENAME "${CMAKE_CURRENT_SOURCE_DIR}/deps/UA-Nodeset-${NODESET_VERSION}" "${NODESET_DIR}")    
+    message(STATUS "Successfully extracted UA-Nodeset to ${NODESET_DIR}")
+  endif()
+endif()
 
 include(${CGET_CMAKE_ORIGINAL_SOURCE_FILE})
 

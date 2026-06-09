@@ -53,10 +53,6 @@ set(UA_ENABLE_ENCRYPTION_OPENSSL ON CACHE BOOL "")
 
 # build system and code fixes
 if (WIN32)
-  # # FIXME: UA_THREAD_LOCAL fails on Win32. FORTE does not need UA threads, disable it
-  # add_definitions("-D_Thread_local=")
-  # add_definitions("-Dthread_local=")
-  # add_definitions("-D__thread=")
   add_definitions("-Wno-error")
 
   # Windows XP compatibility: replace WSAPoll
@@ -69,16 +65,14 @@ if (WIN32)
   file(ARCHIVE_EXTRACT INPUT "${SOURCE_poll}"
 	  DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/arch
 	  PATTERNS *.c *.h)
-  patch(arch/win32/ua_architecture.h "WSAPoll" "poll")
-  patch(arch/win32/ua_architecture.h "POLLRDNORM" "POLLIN")
-  patch(arch/win32/ua_architecture.h "POLLWRNORM" "POLLOUT")
-  patch(arch/win32/ua_architecture.h "\\(LPWSAPOLLFD\\)" "")
-  patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "win32/ua_clock.c" "win32/ua_clock.c \${PROJECT_SOURCE_DIR}/arch/poll-release-1.5.1/poll.c")
+  patch(arch/posix/eventloop_posix.h "WSAPoll" "poll")
+  patch(arch/posix/eventloop_posix.h "POLLRDNORM" "POLLIN")
+  patch(arch/posix/eventloop_posix.h "POLLWRNORM" "POLLOUT")
+  patch(arch/posix/eventloop_posix.h "\\(LPWSAPOLLFD\\)" "")
+  patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "posix/eventloop_posix.c" "posix/eventloop_posix.c \${PROJECT_SOURCE_DIR}/arch/poll-release-1.5.1/poll.c")
   add_compile_options("SHELL: -include poll-release-1.5.1/poll.h")
   add_compile_options(-Dpoll=ua_poll_emulation)
 
-  # Windows XP compatibility: force old windows version define
-  patch(arch/win32/ua_architecture.h "_WIN32_WINNT" "_disabled_WIN32_WINNT")
   add_compile_definitions(_WIN32_WINNT=0x0501)
   set(UA_ARCHITECTURE "win32" CACHE STRING "")
 
@@ -88,9 +82,7 @@ if (WIN32)
   add_compile_options(-fno-exceptions)
 endif()
 
-# intentional omission in libressl API, will be fixed in future open62541 version
-add_definitions("\"-DX509_STORE_CTX_get_check_issued(storeCtx)=FIXME_get_check_issued\"")
-add_definitions("\"-DFIXME_get_check_issued(storeCtx,a,b)=(X509_check_issued(a,b)==X509_V_OK)\"")
+patch("arch/posix/eventloop_posix.h" "#include <bits/stdio_lim.h>" "")
 
 # prevent open62541 trying to be too smart
 patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "check_add_cc_flag\\(\"-Werror\"\\)" "")
@@ -101,8 +93,8 @@ patch(${CGET_CMAKE_ORIGINAL_SOURCE_FILE} "SANITIZER_FLAGS \"[^\"]*\"" "SANITIZER
 if (UA_NAMESPACE_ZERO STREQUAL "FULL" OR UA_ENABLE_ALARM_CONDITIONS)
   if (NOT EXISTS "${NODESET_DIR}/Schema/Opc.Ua.NodeSet2.xml")
     message(STATUS "UA_NAMESPACE_ZERO is FULL. Fetching missing UA-Nodeset submodule...")
-    set(NODESET_VERSION "Machinery-1.03.0-2023-08-01") 
-    set(NODESET_HASH "aaa7b0d318772ff99ca45f5b49d91d293670986f6172279dd6cc567b487d8850")
+    set(NODESET_VERSION "UA-1.05.06-2025-11-08") 
+    set(NODESET_HASH "c09ba6f1d6b3b293f068417feb8c3f510eaf2d4cb6468d6569bde628bc61f153")
 
     download_extra_source(ua_nodeset ua-nodeset.tar.gz
       https://github.com/OPCFoundation/UA-Nodeset/archive/refs/tags/${NODESET_VERSION}.tar.gz

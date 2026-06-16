@@ -9,6 +9,7 @@
 # 
 # Contributors:
 #    Jörg Walter - initial implementation
+#    Sichuan Qunyuan Technology Co., Ltd. - extend tinyxml build for ethercat ESI parsing
 # *******************************************************************************/
 #
 

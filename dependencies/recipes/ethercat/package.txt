@@ -1,0 +1,1 @@
+https://gitlab.com/etherlab.org/ethercat/-/archive/1.6.7/ethercat-1.6.7.tar.bz2?ref_type=tags -X build.cmake -H sha256:6471f27942bc7af52285ba90c637f98f41d8b5c90a32236bf8575fb6a9f9347a

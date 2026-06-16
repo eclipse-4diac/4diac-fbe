@@ -13,6 +13,28 @@
 #
 
 cmake_minimum_required(VERSION 3.10)
+project(tinyxml CXX)
 
-install(FILES tinyxml.cpp tinyxml.h tinyxmlerror.cpp tinyxmlparser.cpp
-  tinystr.cpp tinystr.h DESTINATION src/tinyxml)
+add_library(tinyxml STATIC
+  tinyxml.cpp
+  tinyxmlerror.cpp
+  tinyxmlparser.cpp
+  tinystr.cpp
+)
+
+target_include_directories(tinyxml
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+
+install(TARGETS tinyxml
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+)
+
+install(FILES
+  tinyxml.h
+  tinystr.h
+  DESTINATION include
+)

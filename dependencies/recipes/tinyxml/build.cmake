@@ -39,3 +39,14 @@ install(FILES
   tinystr.h
   DESTINATION include
 )
+
+# POWERLINK compiles these sources directly from src/tinyxml/
+install(FILES
+  tinyxml.cpp
+  tinyxml.h
+  tinyxmlerror.cpp
+  tinyxmlparser.cpp
+  tinystr.cpp
+  tinystr.h
+  DESTINATION src/tinyxml
+)

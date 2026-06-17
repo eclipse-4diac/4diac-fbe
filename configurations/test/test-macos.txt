@@ -16,3 +16,8 @@ include=test-clang.txt
 
 ARCH=aarch64-apple-darwin20.2
 DEPLOY=
+
+// EtherCAT is Linux-only
+DEPS=-fmt
+DEPS=-ethercat
+IO=-ETHERCAT

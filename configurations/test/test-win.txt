@@ -16,3 +16,8 @@ include=test-all.txt
 
 ARCH=x86_64-w64-mingw32
 DEPLOY=
+
+// EtherCAT is Linux-only
+DEPS=-fmt
+DEPS=-ethercat
+IO=-ETHERCAT

@@ -16,18 +16,13 @@
 #
 # Upstream: https://gitlab.com/etherlab.org/ethercat
 #
-# package.txt downloads the Git tag 1.6.7 archive (not v1.6.7 — see tags page).
-# That archive has configure.ac but no pre-generated configure; we run
-# ./bootstrap (autoreconf) before configure. Host needs bash, autoconf,
-# automake, libtool (e.g. Debian: autoconf automake libtool pkg-config).
+# package.txt downloads the official bootstrapped release tarball from the
+# GitLab generic package registry (make dist-bzip2 output). It includes a
+# pre-generated configure script, so no autoreconf/bootstrap is needed.
 #
-# To build from a local tree
-# instead, replace the first line of package.txt with the absolute path to
-# that directory, for example:
+# To build from a local tree instead, replace the first line of package.txt
+# with the absolute path to that directory, for example:
 #   /path/to/ethercat -X build.cmake
-#
-# Optional: add a checksum to package.txt after downloading once, e.g.
-#   ... -H sha256:<sha256 of the .tar.bz2>
 #********************************************************************************
 
 cmake_minimum_required(VERSION 3.10)
@@ -64,22 +59,3 @@ install(DIRECTORY "${CMAKE_INSTALL_PREFIX}/sbin/" DESTINATION sbin
 )
 
 include(autotools-build)
-
-find_program(BASH bash REQUIRED)
-# compile.sh uses a minimal PATH; autoreconf must come from the host (not the FBE bundle).
-if(UNIX AND NOT APPLE)
-  set(_ec_hostpath "${TOOLCHAINS_ROOT}/bin:/usr/bin:/bin:/usr/local/bin")
-elseif(APPLE)
-  set(_ec_hostpath "${TOOLCHAINS_ROOT}/bin:/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin")
-else()
-  set(_ec_hostpath "$ENV{PATH}")
-endif()
-add_custom_target(ethercat-bootstrap
-  COMMAND ${CMAKE_COMMAND} -E env "PATH=${_ec_hostpath}"
-    ${BASH} ${CMAKE_CURRENT_SOURCE_DIR}/bootstrap
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMENT "EtherCAT bootstrap (autoreconf)"
-  VERBATIM
-  USES_TERMINAL
-)
-add_dependencies(autotools-build ethercat-bootstrap)

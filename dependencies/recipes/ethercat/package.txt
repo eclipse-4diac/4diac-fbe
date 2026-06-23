@@ -1,0 +1,1 @@
+https://gitlab.com/api/v4/projects/etherlab.org%2Fethercat/packages/generic/ethercat/1.6.7/ethercat-1.6.7.tar.bz2 -X build.cmake -H sha256:024e976a58eb527aacd86767e94a826fe937ca1741b133208e6c6e76f81ca062

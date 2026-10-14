@@ -184,10 +184,10 @@ set_define() {
 }
 
 reset_build_if_changed() {
-	local file="$1"
+	local file="$1" config="${prefix##*/}"
 	if [ -f "$cachefile" -a "$file" -nt "$cachefile" ]; then
 		echo "Configuration has changed."
-		"$fbemaindir/scripts/clean.sh" "$config/forte"
+		(cd "$fberootdir"; "$fbemaindir/scripts/clean.sh" "$config/forte")
 	fi
 }
 
@@ -247,6 +247,7 @@ $val"
 
 			include)
 				cd "$(dirname "$file")"
+				reset_build_if_changed "$val"
 				load_config "$val"
 				cd "$oldpwd";;
 

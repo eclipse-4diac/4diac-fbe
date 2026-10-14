@@ -110,6 +110,7 @@ detect_legacy_open62541_version() {
 prepare_recipe_dir() {
 	local prefix="$1"
 	local recipes="$prefix/etc/cget/recipes"
+	rm -rf "$recipes"
 	mkdir -p "$recipes"
 
 	# try to symlink, but if that fails (windows), copy instead -- and copy every time to keep recipes up to date
@@ -164,6 +165,29 @@ prepare_recipe_dir() {
 			version="${version%[@.]*}"
 		done
 	done
+}
+
+reset_dependencies_if_changed() {
+	local checksums recipe
+	checksums="$(
+		cd "$prefix/etc/cget/recipes"
+		for recipe in */; do
+			case "$recipe" in
+				forte/|*@*/) continue;;
+			esac
+			find -L "$recipe" -type f -exec cmake -E sha256sum {} \;
+		done | sort
+	)"
+
+	if [ -d "$prefix/cget" ] && { [ ! -f "$prefix/cget/recipes.cksum" ] || [ "$(cat "$prefix/cget/recipes.cksum")" != "$checksums" ]; }; then
+		echo "Dependency recipes have changed. Rebuilding configuration '$config'."
+		# cget does not track reverse dependencies, so rebuild the entire prefix.
+		rm -rf "$prefix"
+		prepare_recipe_dir "$prefix"
+	fi
+
+	mkdir -p "$prefix/cget"
+	printf '%s\n' "$checksums" > "$prefix/cget/recipes.cksum"
 }
 
 ################################################################################
@@ -314,6 +338,7 @@ build_one() {
 	load_config "$file"
 
 	prepare_recipe_dir "$prefix"
+	reset_dependencies_if_changed
 
 	target="${defs_ARCH#*:}"
 	"$fbemaindir/toolchains/install-crosscompiler.sh" "$target"

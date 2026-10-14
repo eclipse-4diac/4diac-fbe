@@ -110,6 +110,7 @@ detect_legacy_open62541_version() {
 prepare_recipe_dir() {
 	local prefix="$1"
 	local recipes="$prefix/etc/cget/recipes"
+	cd "$depdir"
 	rm -rf "$recipes"
 	mkdir -p "$recipes"
 
@@ -182,6 +183,7 @@ reset_dependencies_if_changed() {
 	if [ -d "$prefix/cget" ] && { [ ! -f "$prefix/cget/recipes.cksum" ] || [ "$(cat "$prefix/cget/recipes.cksum")" != "$checksums" ]; }; then
 		echo "Dependency recipes have changed. Rebuilding configuration '$config'."
 		# cget does not track reverse dependencies, so rebuild the entire prefix.
+		cd "$depdir"
 		rm -rf "$prefix"
 		prepare_recipe_dir "$prefix"
 	fi

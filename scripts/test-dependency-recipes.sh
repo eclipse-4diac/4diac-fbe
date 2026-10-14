@@ -14,6 +14,18 @@ extradepdir="$tmp/project/dependencies/recipes"
 FBE_FORTE_SOURCE_DIR="$tmp/forte"
 prefix="$tmp/project/build/test"
 config=test
+rm() {
+	for path in "$@"; do
+		case "$path" in
+			"$prefix"|"$prefix/etc/cget/recipes")
+				case "$PWD/" in
+					"$path/"*) echo "Cannot remove the current directory on Windows" >&2; return 1;;
+				esac;;
+		esac
+	done
+	command rm "$@"
+}
+
 mkdir -p "$depdir/open62541@1.4" "$depdir/open62541@1.5" "$depdir/libressl" "$depdir/forte" "$FBE_FORTE_SOURCE_DIR"
 printf '%s\n' 'open62541/open62541@v1.4.0' > "$depdir/open62541@1.4/package.txt"
 printf '%s\n' 'open62541/open62541@v1.5.4' > "$depdir/open62541@1.5/package.txt"

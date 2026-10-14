@@ -13,7 +13,7 @@
 # *******************************************************************************/
 #
 
-if [ ! -d configurations ]; then
+if [ ! -d configurations ] && [ ! -d "build/$1/../cget" ]; then
 	echo "Run this in a 4diac FBE directory."
 	exit 1
 fi

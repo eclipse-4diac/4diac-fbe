@@ -110,17 +110,46 @@ detect_legacy_open62541_version() {
 prepare_recipe_dir() {
 	local prefix="$1"
 	local recipes="$prefix/etc/cget/recipes"
-	mkdir -p "$recipes"
+	local managed="$prefix/.fbe/recipes.list" recipe_dirs dir i
+	# Only replace recipes and version aliases supplied by FBE or the project.
+	# Keep the previous list so removed overrides and recipes are cleaned up too.
+	recipe_dirs="$(
+		for dir in "$extradepdir" "$depdir"; do
+			[ -d "$dir" ] || continue
+			for i in "$dir"/*; do
+				[ -d "$i" ] || continue
+				i="${i##*/}"
+				printf '%s\n' "$i" "${i%%@*}"
+			done
+		done | sort -u
+	)"
+	# Leave generated directories before removing them (required on Windows).
+	cd "$depdir"
+	[ ! -L "$recipes" ] || die "Recipe directory must not be a symbolic link: $recipes"
+	{
+		[ ! -f "$managed" ] || cat "$managed"
+		printf '%s\n' "$recipe_dirs"
+	} | while IFS= read -r i; do
+		case "$i" in
+			"") continue;;
+			.|..|*/*|*\\*) die "Invalid managed recipe name: $i";;
+		esac
+		rm -rf "$recipes/$i"
+	done
+	mkdir -p "$recipes" "$prefix/.fbe"
+	printf '%s\n' "$recipe_dirs" > "$managed"
 
 	# try to symlink, but if that fails (windows), copy instead -- and copy every time to keep recipes up to date
 	if [ -d "$extradepdir" ]; then
 		cd "$extradepdir"
 		for i in */; do
+			[ -d "$i" ] || continue
 			ln -sf "$extradepdir/$i" "$recipes/" || cp -r "$extradepdir/$i" "$recipes/"
 		done
 	fi
 	cd "$depdir"
 	for i in */; do
+		[ -d "$i" ] || continue
 		[ -d "$recipes/$i" ] || ln -sf "$PWD/$i" "$recipes/" || cp -r "$i" "$recipes/"
 	done
 
@@ -164,6 +193,31 @@ prepare_recipe_dir() {
 			version="${version%[@.]*}"
 		done
 	done
+}
+
+reset_dependencies_if_changed() {
+	local checksums recipe
+	local checksum_file="$prefix/.fbe/recipes.cksum"
+	checksums="$(
+		cd "$prefix/etc/cget/recipes"
+		while IFS= read -r recipe; do
+			case "$recipe" in
+				""|forte|*@*) continue;;
+			esac
+			[ -d "$recipe" ] || continue
+			find -L "$recipe/" -type f -exec cmake -E sha256sum {} \;
+		done < "$prefix/.fbe/recipes.list" | sort
+	)"
+
+	if [ -d "$prefix/cget" ] && { [ ! -f "$checksum_file" ] || [ "$(cat "$checksum_file")" != "$checksums" ]; }; then
+		echo "Dependency recipes have changed. Rebuilding configuration '$config'."
+		# cget does not track reverse dependencies, so rebuild the entire prefix.
+		cd "$depdir"
+		rm -rf "$prefix"
+		prepare_recipe_dir "$prefix"
+	fi
+
+	printf '%s\n' "$checksums" > "$checksum_file"
 }
 
 ################################################################################
@@ -314,6 +368,7 @@ build_one() {
 	load_config "$file"
 
 	prepare_recipe_dir "$prefix"
+	reset_dependencies_if_changed
 
 	target="${defs_ARCH#*:}"
 	"$fbemaindir/toolchains/install-crosscompiler.sh" "$target"

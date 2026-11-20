@@ -247,6 +247,7 @@ $val"
 
 			include)
 				cd "$(dirname "$file")"
+				reset_build_if_changed "$val"
 				load_config "$val"
 				cd "$oldpwd";;
 

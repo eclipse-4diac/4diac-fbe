@@ -187,7 +187,7 @@ reset_build_if_changed() {
 	local file="$1"
 	if [ -f "$cachefile" -a "$file" -nt "$cachefile" ]; then
 		echo "Configuration has changed."
-		"$fbemaindir/scripts/clean.sh" "$config/forte"
+		FBE_ROOT="$fberootdir" "$fbemaindir/scripts/clean.sh" "$config/forte"
 	fi
 }
 
@@ -197,8 +197,8 @@ forte_io=""
 io_process=""
 preset=""
 load_config() {
-	local var val file="$1" config="${1%.txt}" oldpwd="$PWD"
-	config="${config##*/}"
+	local var val file="$1" file_config="${1%.txt}" oldpwd="$PWD"
+	file_config="${file_config##*/}"
 
 	if [ -f "$FBE_FORTE_SOURCE_DIR/CMakePresets.json" -a ! -f "$file" ]; then
 		# assume that this is a preset name
@@ -222,7 +222,7 @@ load_config() {
 		replace val '${FBE_MAIN}' "$fbemaindir"
 		replace val '${PREFIX}' "$prefix"
 		replace val '${HOME}' "$(echo ~)"
-		replace val '${CONFIG}'  "$config"
+		replace val '${CONFIG}'  "$file_config"
 		replace val '${}'  '$'
 
 		case "$var" in
@@ -247,6 +247,7 @@ $val"
 
 			include)
 				cd "$(dirname "$file")"
+				reset_build_if_changed "$val"
 				load_config "$val"
 				cd "$oldpwd";;
 

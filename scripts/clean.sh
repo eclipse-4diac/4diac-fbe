@@ -13,13 +13,17 @@
 # *******************************************************************************/
 #
 
+scripts="$(cd "$(dirname "$0")" && pwd)" || exit 1
+# Callers loading configuration files may be outside the build root.
+cd "${FBE_ROOT:-.}" || exit 1
+
 if [ ! -d configurations ]; then
 	echo "Run this in a 4diac FBE directory."
 	exit 1
 fi
 
 common_clean() {
-	for i in forte 4diac-forte "$(dirname "$0")"/../forte; do
+	for i in forte 4diac-forte "$scripts"/../forte; do
 		[ -d "$i.cget_lock" ] && rmdir "$i.cget_lock"
 		[ -f "$i/__cget_sh_CMakeLists.txt" ] && mv "$i/__cget_sh_CMakeLists.txt" "$i/CMakeLists.txt"
 	done
@@ -42,6 +46,8 @@ case "$1" in
 	echo "* With --package, clears all build files and all caches. Only ever use this"
 	echo "  when you want to package and upload/send the fbe directory for troubleshooting."
         echo "	This will make the next build extremely slow, triggering a full redownload!"
+	echo
+	echo "Set FBE_ROOT to clean a build root other than the current directory."
 	exit 1
 	;;
 "")
@@ -69,11 +75,7 @@ case "$1" in
 */forte)
 	echo "Cleaning to rebuild 4diac FORTE from scratch in config '$1'..."
 	common_clean
-	if [ -d "build/$1/../cget" ]; then
-		rm -rf build/"$1" build/"$1".cget_lock
-	else
-		echo "$1 seems to be cleaned already"
-	fi
+	rm -rf build/"$1" build/"$1".cget_lock
 	;;
 *)
 	if [ -d "$1/cget/../../../build" ]; then
